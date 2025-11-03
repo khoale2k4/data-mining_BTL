@@ -1,2 +1,2 @@
 build_pdf:
-	pdflatex main.tex
+	xelatex main.tex

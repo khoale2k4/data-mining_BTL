@@ -7,7 +7,7 @@ Trong ngành bán lẻ, việc dự báo doanh số bán hàng là một trong n
 
 \paragraph{Bối cảnh:}
 Hoạt động của một chuỗi siêu thị bán lẻ phụ thuộc vào nhiều yếu tố biến động liên tục như:
-các ngày lễ trong năm (ví dụ: Giáng sinh, Lễ Tạ ơn), 
+các ngày lễ trong năm, 
 các chương trình khuyến mãi (\textit{MarkDown}), 
 và các yếu tố kinh tế -- xã hội bên ngoài (như giá nhiên liệu, tỷ lệ thất nghiệp).
 
@@ -15,7 +15,7 @@ và các yếu tố kinh tế -- xã hội bên ngoài (như giá nhiên liệu,
 \begin{itemize}
     \item \textbf{Tối ưu tồn kho:} 
     Nếu dự báo quá cao, Walmart sẽ bị tồn đọng hàng hóa, tăng chi phí lưu kho (đặc biệt với hàng hóa dễ hỏng). 
-    Ngược lại, nếu dự báo quá thấp, cửa hàng sẽ bị \textit{cháy hàng} (\textit{out-of-stock}), 
+    Ngược lại, nếu dự báo quá thấp, cửa hàng sẽ bị \textit{thiếu hàng}, 
     dẫn đến mất doanh thu và giảm sự hài lòng của khách hàng.
     
     \item \textbf{Quản lý nhân sự:} 
@@ -29,7 +29,7 @@ giúp Walmart đưa ra các quyết định kinh doanh hiệu quả hơn.
 \subsection{Mô tả dữ liệu}
 
 \paragraph{Nguồn dữ liệu:}
-Bộ dữ liệu được sử dụng trong bài tập này có tên \textit{``Walmart Sales Forecast''}, 
+Bộ dữ liệu được sử dụng có tên \textit{``Walmart Sales Forecast''}, 
 được thu thập và công bố công khai trên nền tảng Kaggle 
 (tại địa chỉ: \url{https://www.kaggle.com/datasets/aslanahmedov/walmart-sales-forecast}).
 
@@ -39,13 +39,13 @@ Dữ liệu được chia thành ba tệp chính như sau:
 
 \begin{table}[H]
 \centering
-\caption{Mô tả tệp \texttt{stores.csv}}
+\caption{Mô tả \texttt{stores.csv}}
 \begin{tabular}{|l|l|p{8cm}|}
 \hline
 \textbf{Tên thuộc tính} & \textbf{Kiểu dữ liệu} & \textbf{Ý nghĩa} \\ \hline
-Store & Số nguyên & Mã định danh của cửa hàng (từ 1 đến 45) \\ \hline
-Type & Phân loại & Loại cửa hàng (A, B hoặc C) \\ \hline
-Size & Số nguyên & Diện tích của cửa hàng \\ \hline
+Store & Integer & Mã định danh của cửa hàng (từ 1 đến 45) \\ \hline
+Type & String & Loại cửa hàng (A, B hoặc C) \\ \hline
+Size & Integer & Diện tích của cửa hàng \\ \hline
 \end{tabular}
 \end{table}
 
@@ -55,13 +55,13 @@ Size & Số nguyên & Diện tích của cửa hàng \\ \hline
 \begin{tabular}{|l|l|p{8cm}|}
 \hline
 \textbf{Tên thuộc tính} & \textbf{Kiểu dữ liệu} & \textbf{Ý nghĩa} \\ \hline
-Store & Số nguyên & Mã cửa hàng (khóa ngoại liên kết với \texttt{stores.csv}) \\ \hline
-Date & Ngày tháng & Ngày (theo tuần) \\ \hline
-Temperature & Số thực & Nhiệt độ trung bình tại khu vực cửa hàng \\ \hline
-Fuel\_Price & Số thực & Giá nhiên liệu trung bình tại khu vực \\ \hline
-MarkDown1–5 & Số thực & Dữ liệu ẩn danh về 5 loại chương trình giảm giá (\textit{MarkDown}). Giá trị \texttt{NaN} nghĩa là không có giảm giá. \\ \hline
-CPI & Số thực & Chỉ số giá tiêu dùng \\ \hline
-Unemployment & Số thực & Tỷ lệ thất nghiệp tại khu vực \\ \hline
+Store & Integer & Mã cửa hàng (khóa ngoại liên kết với \texttt{stores.csv}) \\ \hline
+Date & Date & Ngày tháng năm \\ \hline
+Temperature & Double & Nhiệt độ trung bình tại khu vực cửa hàng \\ \hline
+Fuel\_Price & Double & Giá nhiên liệu trung bình tại khu vực \\ \hline
+MarkDown1–5 & Double & Dữ liệu ẩn danh về 5 loại chương trình giảm giá (\textit{MarkDown}). Giá trị \texttt{NaN} nghĩa là không có giảm giá. \\ \hline
+CPI & Double & Chỉ số giá tiêu dùng \\ \hline
+Unemployment & Double & Tỷ lệ thất nghiệp tại khu vực \\ \hline
 IsHoliday & Boolean & Đánh dấu tuần đó có phải tuần lễ đặc biệt hay không \\ \hline
 \end{tabular}
 \end{table}
@@ -72,10 +72,10 @@ IsHoliday & Boolean & Đánh dấu tuần đó có phải tuần lễ đặc bi�
 \begin{tabular}{|l|l|p{8cm}|}
 \hline
 \textbf{Tên thuộc tính} & \textbf{Kiểu dữ liệu} & \textbf{Ý nghĩa} \\ \hline
-Store & Số nguyên & Mã cửa hàng \\ \hline
-Dept & Số nguyên & Mã định danh phòng ban (ví dụ: quần áo, điện tử, \ldots) \\ \hline
-Date & Ngày tháng & Ngày (theo tuần) \\ \hline
-Weekly\_Sales & Số thực & \textbf{Thuộc tính mục tiêu} (\textit{Target Variable}) – Doanh số bán hàng trong tuần \\ \hline
+Store & Integer & Mã cửa hàng \\ \hline
+Dept & Integer & Mã định danh phòng ban (ví dụ: quần áo, điện tử, \ldots) \\ \hline
+Date & Date & Ngày tháng năm \\ \hline
+Weekly\_Sales & Double & \textbf{Biến mục tiêu} (\textit{Target Variable}) – Doanh số bán hàng trong tuần \\ \hline
 IsHoliday & Boolean & Đánh dấu tuần lễ đặc biệt \\ \hline
 \end{tabular}
 \end{table}
@@ -85,16 +85,14 @@ IsHoliday & Boolean & Đánh dấu tuần lễ đặc biệt \\ \hline
 Dựa trên bối cảnh và bộ dữ liệu được cung cấp, các mục tiêu khai phá dữ liệu của nhóm được xác định như sau:
 
 \paragraph{Mục tiêu chính:}
-Xây dựng một mô hình \textbf{Hồi quy (Regression)} có khả năng dự đoán chính xác giá trị \texttt{Weekly\_Sales} (doanh số hàng tuần) cho từng phòng ban tại từng cửa hàng.
+Xây dựng một mô hình có khả năng dự đoán tương đối chính xác giá trị \texttt{Weekly\_Sales} (doanh số hàng tuần) cho từng phòng ban tại từng cửa hàng.
 
 \paragraph{Mục tiêu phụ:}
 \begin{itemize}
-    \item Thực hiện phân tích dữ liệu khám phá (EDA) để hiểu rõ đặc điểm của dữ liệu và mối quan hệ giữa các biến 
+    \item Thực hiện phân tích khám phá dữ liệu để hiểu rõ đặc điểm của dữ liệu và mối quan hệ giữa các biến 
     (ví dụ: doanh số tăng hay giảm vào ngày lễ? Nhiệt độ ảnh hưởng đến doanh số ra sao?).
     
-    \item Phân tích và xác định các yếu tố (\textit{features}) có ảnh hưởng quan trọng nhất đến doanh số bán hàng 
-    (ví dụ: \texttt{IsHoliday}, \texttt{MarkDowns}, hay \texttt{Size} của cửa hàng).
+    \item Phân tích và xác định các yếu tố (\textit{features}) có ảnh hưởng quan trọng nhất đến doanh số bán hàng.
     
-    \item So sánh và đánh giá hiệu quả của ít nhất \textbf{hai thuật toán Data Mining khác nhau} 
-    để tìm ra mô hình có kết quả dự đoán tốt nhất.
+    \item Sử dụng và đánh giá một vài thuật toán Data Mining khác nhau để tìm ra mô hình có kết quả dự đoán tốt nhất.
 \end{itemize}

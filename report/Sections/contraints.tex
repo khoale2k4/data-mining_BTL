@@ -1,4 +1,56 @@
 \section{Ràng buộc bổ sung}
+
+Mặc dù mô hình \textit{Random Forest} (mô hình tốt nhất của chúng ta) đạt được hiệu suất rất cao ($R^2 = 0.9778$), vẫn còn một phần nhỏ (2.22\%) phương sai của \texttt{Weekly\_Sales} mà mô hình không thể giải thích được.  
+Phần ``lỗi'' (error) còn lại này không chỉ là nhiễu ngẫu nhiên, mà đại diện cho các yếu tố phức tạp trong thế giới thực mà bộ dữ liệu của chúng ta không ghi lại được.  
+Đây được gọi là các \textbf{ràng buộc ngoại sinh} (\textit{external constraints}).  
+Ba trong số các ràng buộc quan trọng nhất bao gồm:
+
 \subsection{Đối thủ cạnh tranh}
+
+\paragraph{Vấn đề:} Mô hình của chúng ta chỉ được huấn luyện trên dữ liệu nội bộ của Walmart (ví dụ: \texttt{Store}, \texttt{Dept}, \texttt{Size}, \texttt{MarkDown} của Walmart).  
+Nó hoàn toàn ``mù'' (\textit{blind}) trước các hành động và sự tồn tại của các đối thủ cạnh tranh trong cùng khu vực (như Target, Costco, Kmart).
+
+\paragraph{Cơ chế tác động:} Hành vi mua sắm của khách hàng bị ảnh hưởng mạnh mẽ bởi một thị trường cạnh tranh.
+
+\paragraph{Ví dụ (Chiến tranh giá cả):}  
+Giả sử mô hình của chúng ta dự đoán doanh số cao cho Tuần 30 tại Cửa hàng 5.  
+Tuy nhiên, cùng tuần đó, một cửa hàng Target ở bên kia đường tung ra chương trình ``giảm giá sốc'' lớn.  
+Kết quả: Một lượng đáng kể khách hàng chuyển sang mua hàng của Target, khiến doanh số thực tế của Walmart thấp hơn nhiều so với dự đoán.
+
+\paragraph{Tác động đến mô hình:} Mô hình không ``nhìn thấy'' được chương trình giảm giá của Target, nên lỗi này là một \textit{lỗi không thể giải thích được} (unexplained error) do thiếu đặc trưng \texttt{Competitor\_Activity}.
+
 \subsection{Sự kiện bất khả kháng (Thiên nga đen)}
+
+\paragraph{Vấn đề:} Đây là các thảm họa hiếm gặp, có tác động cực lớn và nằm ngoài mọi dự đoán thông thường (ví dụ: đại dịch, thiên tai quy mô lớn, khủng hoảng tài chính).
+
+\paragraph{Cơ chế tác động:} Các sự kiện ``Thiên nga đen'' phá vỡ hoàn toàn các quy luật lịch sử mà mô hình đã học.
+
+\paragraph{Ví dụ (Đại dịch COVID-19):}  
+Mô hình được huấn luyện trên dữ liệu 2010–2012, một giai đoạn ``bình thường''.  
+Nó không thể dự đoán được các hành vi phi logic do đại dịch gây ra:
+\begin{itemize}
+    \item \textbf{Hoảng loạn mua sắm (Panic Buying):} Mô hình dự đoán doanh số tháng 3 (tháng thấp điểm) là \$10{,}000, nhưng doanh số thực tế vọt lên \$150{,}000 do người dân tích trữ hàng hóa.
+    \item \textbf{Lệnh phong tỏa (Lockdowns):} Mô hình dự đoán doanh số Giáng sinh là \$100{,}000, nhưng doanh số thực tế là 0 vì cửa hàng buộc phải đóng cửa.
+\end{itemize}
+
+\paragraph{Tác động đến mô hình:}  
+Các sự kiện này khiến các dự đoán dựa trên lịch sử trở nên vô nghĩa — vì quan hệ giữa đặc trưng và mục tiêu không còn giữ nguyên.
+
 \subsection{Thay đổi về luật/chính sách}
+
+\paragraph{Vấn đề:} Các mô hình học máy giả định rằng các quy luật của quá khứ sẽ tiếp tục đúng trong tương lai.  
+Tuy nhiên, các thay đổi về luật pháp hoặc chính sách của chính phủ có thể thay đổi các ``luật chơi'' chỉ sau một đêm.
+
+\paragraph{Cơ chế tác động:}  
+Các thay đổi này tạo ra các \textit{điểm gãy cấu trúc} (\textit{structural breaks}) trong dữ liệu.
+
+\paragraph{Ví dụ (Quy định giờ mở cửa):}  
+Mô hình được huấn luyện trên dữ liệu 2010–2012, khi cửa hàng mở cửa 7 ngày/tuần.  
+Nó học rằng ``Chủ nhật là ngày có doanh số tốt''.  
+Nhưng năm 2013, một luật mới được ban hành, cấm các cửa hàng lớn mở cửa vào Chủ nhật.  
+Kết quả: Mô hình tiếp tục dự đoán doanh số cao cho Chủ nhật, nhưng thực tế là \$0.
+
+\paragraph{Tác động đến mô hình:}  
+Sự thay đổi đột ngột về luật (như tăng thuế, thay đổi lương tối thiểu, quy định an toàn sản phẩm) khiến mô hình trở nên ``lỗi thời''.  
+Nó cần được \textit{huấn luyện lại} (retrain) với dữ liệu mới để học được ``quy tắc bình thường mới''.
+

@@ -123,7 +123,7 @@ Từ kết quả \texttt{df.info()}, tập dữ liệu có 421,570 bản ghi. Tu
 \paragraph{Hành động:} 
 Điền giá trị \texttt{0} vào các cột \texttt{MarkDown} bị thiếu.
 
-\paragraph{Lý do (Justification):} 
+\paragraph{Lý do:} 
 Trong bối cảnh bán lẻ, giá trị thiếu ở các cột giảm giá (\texttt{MarkDown}) không nhất thiết là lỗi, mà thường đại diện cho trường hợp "không có chương trình giảm giá". Do đó, việc thay thế các giá trị thiếu bằng \texttt{0} (tương đương không giảm giá) là hợp lý và nhất quán về mặt nghiệp vụ.
 
 \subsubsection{Xử lý nhiễu và giá trị ngoại lệ (Noise/Outliers)}
@@ -138,7 +138,7 @@ Trong bối cảnh bán lẻ, giá trị thiếu ở các cột giảm giá (\te
 \paragraph{Hành động:} 
 Đã xử lý bằng cách gán các giá trị âm thành \texttt{0}.
 
-\paragraph{Lý do (Justification):}
+\paragraph{Lý do:}
 \begin{itemize}
     \item \textbf{Nguyên nhân khả dĩ:}
     \begin{itemize}
@@ -257,7 +257,7 @@ Chuẩn hóa theo \textbf{Z-score} giúp đưa chúng về cùng thang đo, đ�
 
 \begin{itemize}
     \item Log xác nhận rằng 1{,}285 bản ghi \texttt{Weekly\_Sales} âm đã được phát hiện và xử lý.
-    \item Không có hàng nào bị xóa, xác nhận rằng chiến lược ``đặt sàn'' (flooring) các giá trị âm về 0 đã được thực hiện thành công.
+    \item Không có hàng nào bị xóa, xác nhận rằng chiến lược flooring các giá trị âm về 0 đã được thực hiện thành công.
     \item Điều này giúp bảo toàn dữ liệu mà vẫn đảm bảo tính logic cho biến mục tiêu.
 \end{itemize}
 
