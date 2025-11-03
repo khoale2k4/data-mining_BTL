@@ -1,0 +1,36 @@
+\documentclass[a4paper]{article}
+% \usepackage{xeCJK}
+\setCJKmainfont{IPAMincho}
+\setCJKsansfont{IPAGothic}
+\setCJKmonofont{IPAGothic}
+\usepackage{hcmut}
+\usepackage[utf8]{inputenc}
+\usepackage{enumitem}  
+\usepackage{array}     
+\usepackage{float}
+\usepackage{caption}   
+\usepackage{hyperref}
+
+\usepackage{chngcntr}
+\counterwithin{table}{subsection}
+\counterwithin{figure}{subsection}
+
+\begin{document}
+
+\include{Sections/title}
+\include{Sections/table_of_figures}
+\include{Sections/description}
+\include{Sections/data_preprocess}
+\include{Sections/algorithm}
+\include{Sections/user_interface}
+\include{Sections/analyse}
+\include{Sections/contraints}
+\include{Sections/references}
+\include{Sections/addendum}
+
+\end{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%% 
+This must be compiled with XeLaTex.
+Go to Menu > Compiler: XeLaTex
+%%%%%%%%%%%%%%%%%%%%%%%%%%%

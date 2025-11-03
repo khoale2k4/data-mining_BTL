@@ -1,0 +1,63 @@
+\section{Phân tích và Thảo luận kết quả}
+
+Sau khi huấn luyện và đánh giá ba mô hình hồi quy trên cùng một tập dữ liệu kiểm tra (\textit{test set}), chúng ta thu được một cái nhìn rõ ràng về hiệu suất và mức độ phù hợp của từng phương pháp.
+
+\subsection{Phân tích ý nghĩa của kết quả}
+
+Các kết quả đánh giá không chỉ giúp xác định mô hình nào hoạt động tốt nhất, mà còn củng cố các giả thuyết đã được đưa ra trong giai đoạn Khám phá Dữ liệu (EDA) và Lựa chọn Đặc trưng (Feature Selection).
+
+\paragraph{Hồi quy tuyến tính (\textit{Linear Regression})}
+
+\begin{itemize}
+    \item \textbf{Kết quả:} $R^2 = 0.0926$, $RMSE = \$21{,}752$, $MAE = \$14{,}561$.
+    \item \textbf{Phân tích:} Mô hình chỉ giải thích được 9.26\% sự biến động của dữ liệu. Sai số trung bình quá lớn khiến mô hình gần như không có giá trị ứng dụng thực tế.
+    \item \textbf{Nguyên nhân:} Các đặc trưng như \texttt{Fuel\_Price} và \texttt{Temperature} có tương quan tuyến tính gần như bằng 0 với \texttt{Weekly\_Sales}. Do đó, mô hình tuyến tính (chỉ học được mối quan hệ dạng $y = ax + b$) đã không thể nắm bắt được bản chất phi tuyến tính của dữ liệu.
+\end{itemize}
+
+\paragraph{Mô hình Decision Tree và Random Forest}
+ 
+\begin{itemize}
+    \item \textbf{Kết quả:} Decision Tree đạt $R^2 = 0.9617$, còn Random Forest đạt $R^2 = 0.9778$.
+    \item \textbf{Phân tích:} Hai mô hình dựa trên cây đều cho kết quả vượt trội, chứng minh rằng \texttt{Weekly\_Sales} là một biến có thể dự đoán được với độ chính xác rất cao.
+    \item \textbf{Nguyên nhân:} Không giống như Linear Regression, mô hình cây có thể học các mối quan hệ phức tạp, phi tuyến tính. Các đặc trưng quan trọng nhất được xác định là các yếu tố định danh và phân loại như \texttt{Dept}, \texttt{Store}, \texttt{Size} và \texttt{Type}, thay vì các yếu tố kinh tế.
+\end{itemize}
+
+\paragraph{Random Forest vượt trội hơn Decision Tree}
+
+\begin{itemize}
+    \item \textbf{Kết quả:} Random Forest đạt $RMSE = \$3{,}404$, giảm 24\% so với Decision Tree ($RMSE = \$4{,}466$).
+    \item \textbf{Phân tích:} Mặc dù cả hai đều hiệu quả, Random Forest thể hiện khả năng tổng quát hóa tốt hơn.
+    \item \textbf{Nguyên nhân:} Decision Tree đơn lẻ dễ bị \textit{overfitting} (học vẹt). Trong khi đó, Random Forest là mô hình tổ hợp gồm 100 cây, mỗi cây được huấn luyện trên một mẫu con khác nhau của dữ liệu. Kết quả trung bình từ nhiều cây giúp giảm nhiễu và sai lệch, tăng độ ổn định của mô hình.
+\end{itemize}
+
+\subsection{Hạn chế của mô hình}
+
+Mặc dù Random Forest đạt độ chính xác rất cao ($R^2 = 0.9778$), nó vẫn tồn tại một số hạn chế:
+
+\begin{enumerate}
+    \item \textbf{Tính diễn giải (Explainability):} Linear Regression là một mô hình “hộp trắng” (\textit{white-box}) — dễ hiểu và có thể giải thích rõ ràng ảnh hưởng của từng biến. Ngược lại, Random Forest là “hộp đen” (\textit{black-box}), gồm hàng trăm cây phức tạp, rất khó để lý giải một dự đoán cụ thể.
+    \item \textbf{Thời gian huấn luyện:} Random Forest mất \textbf{52.86 giây} để huấn luyện, chậm hơn 15 lần so với Decision Tree (3.38 giây) và 440 lần so với Linear Regression (0.12 giây). Khi mở rộng lên các tập dữ liệu lớn (hàng chục triệu dòng), chi phí tính toán là vấn đề đáng kể.
+    \item \textbf{Khả năng dự đoán dữ liệu mới:} Mô hình được huấn luyện trên dữ liệu của 45 cửa hàng và 99 phòng ban, do đó sẽ hoạt động rất chính xác trong phạm vi này. Tuy nhiên, nếu xuất hiện cửa hàng hoặc phòng ban mới, mô hình sẽ không thể dự đoán chính xác.
+\end{enumerate}
+
+\subsection{Hướng phát triển}
+
+Dựa trên kết quả và các hạn chế đã nêu, có thể mở rộng và cải thiện mô hình theo các hướng sau:
+
+\begin{itemize}
+    \item \textbf{Tinh chỉnh siêu tham số (Hyperparameter Tuning):} Sử dụng \texttt{GridSearchCV} hoặc \texttt{RandomizedSearchCV} để tối ưu các tham số như \texttt{max\_depth} hoặc \texttt{min\_samples\_leaf}, giúp giảm thêm lỗi RMSE và tăng độ chính xác.
+    
+    \item \textbf{Thử nghiệm các mô hình \textit{Ensemble} nâng cao:} Áp dụng các thuật toán như \textit{Gradient Boosting}, \textit{XGBoost} hoặc \textit{LightGBM}, vốn có khả năng học mạnh mẽ hơn nhờ cơ chế huấn luyện tuần tự — mỗi cây mới học để sửa lỗi của cây trước đó.
+    
+    \item \textbf{Kỹ thuật tạo đặc trưng (Feature Engineering) nâng cao:}
+    \begin{itemize}
+        \item \textit{Đặc trưng dựa trên thời gian (Lag Features):} Ví dụ: \texttt{LastWeekSales}, \texttt{Avg4WeeksSales}.
+        \item \textit{Đặc trưng sự kiện (Event-based Features):} Thay vì chỉ dùng \texttt{IsHoliday}, có thể tạo thêm biến \texttt{DaysUntilNextHoliday} — phản ánh hành vi mua sắm tăng trước kỳ lễ.
+    \end{itemize}
+    
+    \item \textbf{Triển khai mô hình (Deployment):}
+    \begin{itemize}
+        \item Lưu mô hình \texttt{RandomForestRegressor} và \texttt{StandardScaler} bằng \texttt{joblib} hoặc \texttt{pickle}.
+        \item Xây dựng API với \texttt{Flask} hoặc \texttt{FastAPI} để nhận dữ liệu đầu vào (\textit{JSON}), tải mô hình đã lưu, xử lý và trả về kết quả dự đoán theo thời gian thực.
+    \end{itemize}
+\end{itemize}

@@ -1,0 +1,11 @@
+PWD /Users/lekhoa/Desktop/BK/251/DataMining/btl/report
+INPUT /usr/local/texlive/2025basic/texmf.cnf
+INPUT /usr/local/texlive/2025basic/texmf-dist/web2c/texmf.cnf
+INPUT /usr/local/texlive/2025basic/texmf-var/web2c/xetex/xelatex.fmt
+INPUT main.tex
+OUTPUT main.log
+INPUT /usr/local/texlive/2025basic/texmf-dist/tex/latex/base/article.cls
+INPUT /usr/local/texlive/2025basic/texmf-dist/tex/latex/base/article.cls
+INPUT /usr/local/texlive/2025basic/texmf-dist/tex/latex/base/size10.clo
+INPUT /usr/local/texlive/2025basic/texmf-dist/tex/latex/base/size10.clo
+INPUT /usr/local/texlive/2025basic/texmf-dist/tex/latex/base/size10.clo

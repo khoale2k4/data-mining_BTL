@@ -1,0 +1,284 @@
+\section{Tiền xử lý dữ liệu}
+\subsection{Khám phá dữ liệu (Exploratory Data Analysis - EDA)}
+
+Giai đoạn EDA được thực hiện với mục tiêu tìm hiểu cấu trúc, phân phối và các mối quan hệ bên trong bộ dữ liệu. 
+Nhóm đã sử dụng thư viện \textbf{Pandas} để tải và tính toán thống kê, 
+cùng với thư viện \textbf{Seaborn} và \textbf{Matplotlib} để trực quan hóa.
+
+\subsubsection{Thống kê mô tả (Descriptive Statistics)}
+
+Sau khi tải và gộp dữ liệu, nhóm thực hiện hàm \texttt{.describe()} trên các cột dữ liệu số 
+để có cái nhìn tổng quan đầu tiên.
+
+\begin{table}[H]
+\centering
+\caption{Thống kê mô tả các thuộc tính số}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|l|r|r|r|r|r|r|r|r|}
+\hline
+\textbf{Thuộc tính} & \textbf{Count} & \textbf{Mean} & \textbf{Std} & \textbf{Min} & \textbf{25\%} & \textbf{50\% (Median)} & \textbf{75\%} & \textbf{Max} \\ \hline
+Store & 421570 & 22.20 & 12.79 & 1.00 & 11.00 & 22.00 & 33.00 & 45.00 \\ \hline
+Dept & 421570 & 44.26 & 30.49 & 1.00 & 18.00 & 37.00 & 74.00 & 99.00 \\ \hline
+Weekly\_Sales & 421570 & 15981.26 & 22711.18 & -4988.94 & 2079.65 & 7612.03 & 20205.85 & 693099.36 \\ \hline
+Temperature & 421570 & 60.09 & 18.45 & -2.06 & 46.68 & 62.09 & 74.28 & 100.14 \\ \hline
+Fuel\_Price & 421570 & 3.36 & 0.46 & 2.47 & 2.93 & 3.45 & 3.74 & 4.47 \\ \hline
+MarkDown1 & 150681 & 7246.42 & 8291.22 & 0.27 & 2240.27 & 5347.45 & 9210.90 & 88646.76 \\ \hline
+MarkDown2 & 111248 & 3334.63 & 9475.36 & -265.76 & 41.60 & 192.00 & 1926.94 & 104519.54 \\ \hline
+MarkDown3 & 137091 & 1439.42 & 9623.08 & -29.10 & 5.08 & 24.60 & 103.99 & 141630.61 \\ \hline
+MarkDown4 & 134967 & 3383.17 & 6292.38 & 0.22 & 504.22 & 1481.31 & 3595.04 & 67474.85 \\ \hline
+MarkDown5 & 151432 & 4628.98 & 5962.89 & 135.16 & 1878.44 & 3359.45 & 5563.80 & 108519.28 \\ \hline
+CPI & 421570 & 171.20 & 39.16 & 126.06 & 132.02 & 182.32 & 212.42 & 227.23 \\ \hline
+Unemployment & 421570 & 7.96 & 1.86 & 3.88 & 6.89 & 7.87 & 8.57 & 14.31 \\ \hline
+Size & 421570 & 136727.92 & 60980.58 & 34875 & 93638 & 140167 & 202505 & 219622 \\ \hline
+\end{tabular}%
+}
+\end{table}
+
+
+\noindent
+\textbf{Nhận xét Weekly\_Sales từ Bảng 3.1.1:}
+\begin{itemize}
+    \item \textbf{Giá trị \textit{Min} là số âm ($\sim$4960.94):} có thể đại diện cho các giao dịch bị trả hàng (\textit{refunds}) hoặc lỗi nhập liệu. Đây là một vấn đề cần xử lý trong bước làm sạch dữ liệu.
+    \item \textbf{Trung bình (mean) là 15,981 và trung vị (med): 7,612:} Giá trị trung bình lớn hơn đáng kể so với giá trị trung vị. Điều này cho thấy dữ liệu bị lệch phải (right-skewed).
+\end{itemize}
+
+\subsubsection{Phân tích biến mục tiêu (Target Variable Analysis)}
+
+Biến mục tiêu của bài toán là \textbf{Weekly\_Sales}. 
+Việc hiểu rõ phân phối của nó là điều bắt buộc. 
+Nhóm đã sử dụng biểu đồ phân phối (\textit{Histogram}) để trực quan hóa.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=1\textwidth]{Images/weekly_sales_distribution.png}
+\caption{Phân phối của Doanh số hàng tuần (Weekly\_Sales Distribution)}
+\end{figure}
+
+\noindent
+\textbf{Phân tích Hình 3.1.1:}
+\begin{itemize}
+    \item Biểu đồ này xác nhận một cách trực quan những gì chúng ta thấy trong \texttt{.describe()}
+    \item \textbf{Phân phối lệch:} 
+    Biểu đồ cho thấy rõ ràng rằng \texttt{Weekly\_Sales} không tuân theo phân phối chuẩn 
+    mà bị \textbf{lệch phải (right-skewed)} rất mạnh. 
+    Điều này có nghĩa là phần lớn doanh số hàng tuần ở mức thấp đến trung bình, 
+    và chỉ một số ít tuần có doanh số cực cao (tạo thành "đuôi phải").
+    
+    \item \textbf{Giá trị âm:} 
+    Quan sát ở phía bên trái trục 0 có một nhóm nhỏ dữ liệu âm, 
+    xác nhận các giá trị âm trong Bảng 3.1.1.
+
+    \item \textbf{Ý nghĩa:} Phần lớn các quan sát (doanh số hàng tuần của một phòng ban) có giá trị tương đối thấp (khoảng 0 - 50,000), nhưng có một số ít trường hợp có doanh số rất cao (các giá trị ngoại lệ - outliers) kéo giá trị trung bình lên. Những ngoại lệ này có thể là các tuần lễ hội lớn (Black Friday, Giáng sinh).
+\end{itemize}
+
+\subsubsection{Phân tích tương quan (Correlation Analysis)}
+
+Để hiểu mối quan hệ tuyến tính giữa các biến số, nhóm đã tính toán \textbf{ma trận tương quan (correlation matrix)} 
+và trực quan hóa bằng \textbf{biểu đồ nhiệt (heatmap)}.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=1\textwidth]{Images/correlation_heatmap.png}
+\caption{Biểu đồ nhiệt tương quan giữa các biến số}
+\end{figure}
+
+\noindent
+\textbf{Phân tích Hình 3.1.2:}
+\begin{itemize}
+    \item Biểu đồ nhiệt hiển thị hệ số tương quan Pearson:
+    \begin{itemize}
+        \item Giá trị gần $+1.0$ (màu đỏ đậm): tương quan đồng biến mạnh ($X$ tăng thì $Y$ tăng).
+        \item Giá trị gần $-1.0$ (màu xanh đậm): tương quan nghịch biến mạnh ($X$ tăng thì $Y$ giảm).
+        \item Giá trị gần $0$: ít hoặc không có tương quan tuyến tính.
+    \end{itemize}
+
+    \item \textbf{Phát hiện quan trọng về \texttt{Weekly\_Sales:}}
+    \begin{itemize}
+        \item \textbf{Hàng \texttt{Weekly\_Sales}:} đa số các ô (so với các biến số khác như \texttt{Temperature, Fuel\_Price, CPI, Unemployment}, và các \texttt{MarkDown}) đều có màu rất nhạt, và các con số đều rất gần 0 (ví dụ: -0.00, 0.00, 0.09, -0.02, -0.03).
+        \item \textbf{Kích thước Cửa hàng (Size):}  là yếu tố có ảnh hưởng tuyến tính MẠNH NHẤT, nhưng vẫn chỉ ở mức yếu (+0.24).
+        \item \textbf{Tuy nhiên:} Điều này KHÔNG có nghĩa là chúng không quan trọng. Nó chỉ có nghĩa là một mô hình tuyến tính đơn giản (ví dụ:$ \textbf{Sales} = A \times \textbf{Temperature} + B$) sẽ không hoạt động tốt. Mối quan hệ có thể phức tạp hơn (phi tuyến tính).
+    \end{itemize}
+
+    \item \textbf{Phát hiện thú vị khác:}
+    \texttt{MarkDown1} và \texttt{MarkDown4} có tương quan dương rất mạnh ($r \approx +0.85$), 
+    cho thấy hai chương trình khuyến mãi này thường được tung ra cùng lúc. 
+    Hiện tượng này cần được lưu ý vì có thể ảnh hưởng đến độ ổn định của các mô hình hồi quy.
+\end{itemize}
+
+\subsection{Các bước làm sạch và chuẩn bị dữ liệu}
+
+\subsubsection{Xử lý giá trị thiếu (Missing Values)}
+
+\paragraph{Phát hiện ban đầu:} 
+Từ kết quả \texttt{df.info()}, tập dữ liệu có 421,570 bản ghi. Tuy nhiên, các cột \texttt{MarkDown1 - MarkDown5} có số lượng giá trị \texttt{non-null} thấp hơn đáng kể:
+
+\begin{itemize}
+    \item \texttt{MarkDown1}: 150,681 (thiếu $\sim$64.2\%)
+    \item \texttt{MarkDown2}: 111,248 (thiếu $\sim$73.6\%)
+    \item \texttt{MarkDown3}: 137,091 (thiếu $\sim$67.5\%)
+    \item \texttt{MarkDown4}: 134,967 (thiếu $\sim$68.0\%)
+    \item \texttt{MarkDown5}: 151,432 (thiếu $\sim$64.1\%)
+\end{itemize}
+
+\paragraph{Hành động:} 
+Điền giá trị \texttt{0} vào các cột \texttt{MarkDown} bị thiếu.
+
+\paragraph{Lý do (Justification):} 
+Trong bối cảnh bán lẻ, giá trị thiếu ở các cột giảm giá (\texttt{MarkDown}) không nhất thiết là lỗi, mà thường đại diện cho trường hợp "không có chương trình giảm giá". Do đó, việc thay thế các giá trị thiếu bằng \texttt{0} (tương đương không giảm giá) là hợp lý và nhất quán về mặt nghiệp vụ.
+
+\subsubsection{Xử lý nhiễu và giá trị ngoại lệ (Noise/Outliers)}
+
+\paragraph{Phát hiện ban đầu:} 
+\begin{itemize}
+    \item Kết quả \texttt{df.describe()} cho thấy giá trị tối thiểu của \texttt{Weekly\_Sales} là \texttt{-4988.94}, một bất thường nghiêm trọng.
+    \item Phát hiện 1,285 bản ghi có \texttt{Weekly\_Sales < 0}.
+\end{itemize}
+
+
+\paragraph{Hành động:} 
+Đã xử lý bằng cách gán các giá trị âm thành \texttt{0}.
+
+\paragraph{Lý do (Justification):}
+\begin{itemize}
+    \item \textbf{Nguyên nhân khả dĩ:}
+    \begin{itemize}
+        \item Lỗi nhập liệu (data entry error).
+        \item Doanh thu ròng (Net Sales) có thể bị âm nếu số hàng trả lại vượt quá hàng bán ra.
+    \end{itemize}
+    \item \textbf{Tại sao không xoá dữ liệu:} Xoá 1,285 hàng (0.3\%) sẽ làm mất thông tin quý giá khác. 
+    \item \textbf{Tại sao không lấy giá trị tuyệt đối:} Dễ gây sai lệch vì biến âm thành dương. 
+    \item \textbf{Giải pháp chọn:} Chuyển giá trị âm thành \texttt{0} là hợp lý nhất, xem như "không có doanh thu". 
+\end{itemize}
+
+\paragraph{Kỹ thuật áp dụng:} 
+Đây là một kỹ thuật \textit{Outlier Handling} dạng \textbf{Flooring/Capping} – chặn các giá trị vượt ngoài ngưỡng hợp lý (ở đây là nhỏ hơn 0) về giá trị biên hợp lệ.
+
+\subsubsection{Chọn lọc thuộc tính (Feature Engineering \& Selection)}
+
+\paragraph{Feature Engineering (Tạo đặc trưng):}
+
+\paragraph{Phát hiện ban đầu:} 
+Cột \texttt{Type} có kiểu \texttt{object}, cột \texttt{Date} có kiểu \texttt{object} và \texttt{IsHoliday} có kiểu \texttt{bool}. Các mô hình học máy không thể xử lý trực tiếp các kiểu dữ liệu này.
+
+\paragraph{Hành động:} 
+Tạo các đặc trưng mới:
+\begin{itemize}
+    \item \texttt{Year}, \texttt{Month}, \texttt{WeekOfYear}, \texttt{Day}
+    \item Chuyển \texttt{IsHoliday} từ \texttt{True/False} sang \texttt{1/0}.
+    \item Tạo 3 cột \texttt{Type\_A, Type\_B,  Type\_C} và cho chúng kiểu \texttt{1/0} dựa theo \texttt{Type}.
+\end{itemize}
+
+\textbf{Lý do:}
+\begin{itemize}
+    \item \textbf{Xu hướng (Trend):} Cột \texttt{Year} giúp mô hình nhận biết sự thay đổi doanh số qua các năm.
+    \item \textbf{Tính thời vụ (Seasonality):} \texttt{Month} và \texttt{WeekOfYear} hỗ trợ mô hình học chu kỳ bán hàng.
+    \item \textbf{Mã hóa biến Phân loại bằng One-Hot Encoding:} cho phép mô hình (đặc biệt là Linear Regression) gán một \textbf{trọng số (hệ số) riêng biệt} cho từng loại mà không tạo ra bất kỳ một "thứ tự" giả mạo nào
+\end{itemize}
+
+\paragraph{Feature Selection (Lựa chọn đặc trưng):}
+
+\paragraph{Hành động:} 
+Sử dụng \texttt{SelectKBest} với hàm \texttt{f\_regression} để đánh giá tầm quan trọng của từng đặc trưng trong việc dự đoán \texttt{Weekly\_Sales}.
+
+\paragraph{Kết quả:}
+\begin{center}
+\begin{tabular}{|l|r|}
+\hline
+\textbf{Đặc trưng} & \textbf{Điểm (Score)} \\ \hline
+    Size &   26647.905144\\ \hline
+    Type\_A  &  15009.499841\\ \hline
+    Dept   &  9445.215074\\ \hline
+    Type\_B  &   7385.855222\\ \hline
+    Type\_C  &   3871.207762\\ \hline
+    Store   &  3082.286020\\ \hline
+    MarkDown5   &  1076.346995\\ \hline
+    MarkDown1   &   940.157460\\ \hline
+    MarkDown3    &  627.806676\\ \hline
+    MarkDown4   &   592.619310\\ \hline
+    Month   &   340.566300\\ \hline
+    WeekOfYear  &    323.135235\\ \hline
+    Unemployment  &    282.117400\\ \hline
+    CPI  &    184.627819\\ \hline
+    MarkDown2  &    181.034378\\ \hline
+    IsHoliday   &    68.811742\\ \hline
+    Year   &    43.114262\\ \hline
+    Day    &   16.140026\\ \hline
+    Temperature   &     2.254012\\ \hline
+    Fuel\_Price    &    0.006127\\ \hline
+\end{tabular}
+\end{center}
+
+
+\paragraph{Nhận xét:}
+\begin{itemize}
+    \item \textbf{Quan trọng nhất:} Các đặc trưng \texttt{Size} (kích thước), \texttt{Type} (loại cửa hàng), và \texttt{Dept} (phòng ban) có điểm số cao vượt trội so với phần còn lại. Điều này khẳng định yếu tố quan trọng nhất để dự đoán doanh số là "đó là cửa hàng nào" và "phòng ban nào".
+    
+    \item \textbf{Không quan trọng:} \texttt{Fuel\_Price} (giá xăng) và \texttt{Temperature} (nhiệt độ) có điểm số gần như bằng 0. Điều này xác nhận chúng gần như không có ảnh hưởng (một cách tuyến tính), hoàn toàn phù hợp với kết quả từ biểu đồ tương quan.
+\end{itemize}
+
+\subsubsection{Chuẩn hóa dữ liệu (Normalization)}
+
+\paragraph{Hành động:} 
+Áp dụng \texttt{StandardScaler} để chuẩn hóa các cột số: \texttt{Temperature}, \texttt{Fuel\_Price}, \texttt{CPI}, \texttt{Size} \texttt{Unemployment}, và các cột \texttt{MarkDown}.
+
+\paragraph{Kết quả:} 
+Sau khi chuẩn hóa, tất cả các đặc trưng có \texttt{mean $\sim$0,00} và \texttt{std $\sim$1,00}.
+
+\paragraph{Lý do:} 
+Các đặc trưng ban đầu có thang đo rất khác nhau (ví dụ: \texttt{MarkDown1} tới 88,000 trong khi \texttt{Fuel\_Price} chỉ quanh 3–4).  
+Chuẩn hóa theo \textbf{Z-score} giúp đưa chúng về cùng thang đo, đảm bảo mô hình học dựa trên sức mạnh dự đoán thực, không bị ảnh hưởng bởi độ lớn của giá trị.
+
+\subsection{Kết quả sau tiền xử lý}
+
+\subsubsection{Thay đổi về cấu trúc và tính đầy đủ (Từ \texttt{df.info()})}
+
+\begin{itemize}
+    \item \textbf{Tính toàn vẹn dữ liệu:} Tổng số bản ghi vẫn là 421{,}570, cho thấy không có hàng nào bị xóa trong quá trình làm sạch.
+    \item \textbf{Xử lý giá trị thiếu:} Tất cả 21 cột hiện tại đều có 421{,}570 giá trị \texttt{non-null}. Điều này xác nhận rằng 5 cột \texttt{MarkDown1–5} (trước đây bị thiếu dữ liệu nghiêm trọng) đã được điền đầy đủ bằng giá trị 0.
+    \item \textbf{Feature Engineering:} 
+    \begin{itemize}
+        \item Tổng số cột tăng từ 16 lên 21 cột.
+        \item Cột \texttt{Date} và \texttt{Type} (kiểu \texttt{object}) đã bị loại bỏ.
+        \item Các đặc trưng thời gian mới được tạo ra: \texttt{Year}, \texttt{Month}, \texttt{Day}, \texttt{WeekOfYear}, \texttt{Type\_A}, \texttt{Type\_B}, \texttt{Type\_C}.
+        \item Cột \texttt{IsHoliday} (trước đây là \texttt{bool}) đã được chuyển đổi thành kiểu \texttt{int64} (0 hoặc 1).
+    \end{itemize}
+    \item \textbf{Kiểu dữ liệu:} Tập dữ liệu cuối cùng gồm 11 cột \texttt{float}, 10 cột \texttt{int} — tất cả đều là định dạng số mà mô hình học máy có thể đọc được.
+\end{itemize}
+
+\subsubsection{Chuẩn hóa và biến đổi dữ liệu (Từ \texttt{df.describe()})}
+
+\begin{itemize}
+    \item \textbf{Xác nhận chuẩn hóa:} Tất cả 10 cột được đưa vào \texttt{StandardScaler} (\texttt{Temperature}, \texttt{Fuel\_Price}, \texttt{MarkDown1–5}, \texttt{CPI}, \texttt{Unemployment}, \texttt{Size}) đều có giá trị trung bình xấp xỉ 0.00 và độ lệch chuẩn là 1.00.
+    \item \textbf{Ý nghĩa:} Việc chuẩn hóa loại bỏ ảnh hưởng của thang đo khác biệt, giúp mô hình đánh giá đúng tầm quan trọng thực sự của các đặc trưng.
+    \item \textbf{Quan sát từ \texttt{df.head()}:} Các cột như \texttt{Temperature} và \texttt{Fuel\_Price} không còn giá trị gốc (ví dụ: 42.31, 2.572) mà là các giá trị Z-score đã được chuẩn hóa (ví dụ: -0.963, -1.720).
+\end{itemize}
+
+\subsubsection{Xử lý nhiễu (Từ log xử lý dữ liệu)}
+
+\begin{itemize}
+    \item Log xác nhận rằng 1{,}285 bản ghi \texttt{Weekly\_Sales} âm đã được phát hiện và xử lý.
+    \item Không có hàng nào bị xóa, xác nhận rằng chiến lược ``đặt sàn'' (flooring) các giá trị âm về 0 đã được thực hiện thành công.
+    \item Điều này giúp bảo toàn dữ liệu mà vẫn đảm bảo tính logic cho biến mục tiêu.
+\end{itemize}
+
+\subsubsection{Tóm tắt trước và sau tiền xử lý}
+
+\begin{table}[H]
+\centering
+\caption{So sánh trạng thái dữ liệu trước và sau tiền xử lý}
+\begin{tabularx}{\textwidth}{|p{3cm}|X|X|}
+\hline
+\textbf{Đặc điểm} & \textbf{Trước tiền xử lý} & \textbf{Sau tiền xử lý} \\ \hline
+Tổng số cột & 16 & 21 \\ \hline
+Giá trị Null & Có (ở 5 cột MarkDown) & Không \\ \hline
+Cột \texttt{Date} & \texttt{object (chuỗi)} & Bị loại bỏ, thay bằng \texttt{Year}, \texttt{Month}, \texttt{WeekOfYear}, \texttt{Day} \\ \hline
+Cột \texttt{Type} & \texttt{object (chuỗi)} & Bị loại bỏ, thay bằng \texttt{Type\_A}, \texttt{Type\_B}, \texttt{Type\_C} \\ \hline
+Cột \texttt{IsHoliday} & \texttt{bool (True/False)} & \texttt{int (1/0)} \\ \hline
+Thang đo (Scale) & Khác biệt lớn (ví dụ: 100.14 vs 88,646.76) & Các cột số liên tục đã được chuẩn hóa (\texttt{Mean=0, Std=1}) \\ \hline
+Giá trị âm \texttt{Weekly\_Sales} & Có (1,285 bản ghi) & Không (min = 0) \\ \hline
+\end{tabularx}
+\end{table}
+
+\subsubsection{Kết luận}
+
+Tập dữ liệu \texttt{df} hiện đã hoàn toàn sạch, đầy đủ, có cấu trúc và được chuẩn hóa. Nó đã sẵn sàng cho bước tiếp theo là \textbf{phân chia dữ liệu (train/test split)} và đưa vào các mô hình học máy để huấn luyện.

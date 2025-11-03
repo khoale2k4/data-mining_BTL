@@ -1,0 +1,121 @@
+\section{Giao diện người dùng}
+
+Phần này mô tả các thành phần chính của giao diện ứng dụng, bao gồm quá trình tải dữ liệu, khám phá, tiền xử lý, huấn luyện mô hình và chạy thử dự đoán. Các hình minh họa bên dưới cho thấy luồng thao tác trực quan mà người dùng trải nghiệm trong ứng dụng.
+
+\subsection{Giao diện tải tập dữ liệu}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{Images/upload_dataset.png}
+    \caption{Giao diện trước khi tải tập dữ liệu}
+    \label{fig:upload_before}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{Images/upload_dataset_2.png}
+    \caption{Giao diện sau khi tải tập dữ liệu}
+    \label{fig:upload_after}
+\end{figure}
+
+Sau khi người dùng tải tệp dữ liệu lên (Hình~\ref{fig:upload_after}), ứng dụng tự động đọc nội dung và hiển thị 5 dòng đầu tiên của tập dữ liệu thô. Đồng thời, kết quả của phương thức \texttt{.info()} cũng được trình bày, giúp người dùng xác minh nhanh tính toàn vẹn và định dạng của dữ liệu.
+
+\subsection{Giao diện khám phá dữ liệu}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{Images/data_analyse.png}
+    \caption{Phân tích và khám phá dữ liệu}
+    \label{fig:data_analyse}
+\end{figure}
+
+Tại bước này (Hình~\ref{fig:data_analyse}), hệ thống tự động sinh ra biểu đồ Ma trận tương quan giữa các biến. Nhờ đó, người dùng có thể nhanh chóng nhận biết các đặc điểm của dữ liệu thô.
+
+\subsection{Giao diện tiền xử lý dữ liệu}
+
+Khi người dùng nhấn “\textit{Bắt đầu Tiền xử lý}”, giao diện sẽ thu gọn bước trước và mở lần lượt các mục con trong Bước 3: Xử lý giá trị thiếu, xử lý nhiễu, tạo đặc trưng và chuẩn hóa dữ liệu.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{Images/preprocess.png}
+    \caption{Xử lý dữ liệu khuyết}
+    \label{fig:preprocess_missing}
+\end{figure}
+
+Hình~\ref{fig:preprocess_missing} minh họa quá trình xử lý giá trị thiếu, trong đó ứng dụng áp dụng phép \texttt{fillna(0)} và hiển thị kết quả ngay sau khi thực thi.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{Images/preprocess_2.png}
+    \caption{Xử lý dữ liệu nhiễu}
+    \label{fig:preprocess_noise}
+\end{figure}
+
+Bước kế tiếp (Hình~\ref{fig:preprocess_noise}) minh họa việc loại bỏ hoặc làm trơn các giá trị bất thường trong dữ liệu.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{Images/preprocess_3.png}
+    \caption{Tạo đặc trưng mới}
+    \label{fig:preprocess_feature}
+\end{figure}
+
+Tiếp theo, mô-đun tạo đặc trưng (Hình~\ref{fig:preprocess_feature}) sinh thêm các biến phụ như \texttt{Month}, \texttt{WeelOfYear} hoặc \texttt{IsHoliday} để tăng khả năng học của mô hình.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{Images/preprocess_4.png}
+    \caption{Chuẩn hóa dữ liệu}
+    \label{fig:preprocess_scale}
+\end{figure}
+
+Cuối cùng, dữ liệu được chuẩn hóa (Hình~\ref{fig:preprocess_scale}) nhằm đảm bảo các đặc trưng có cùng thang đo, giúp mô hình hội tụ ổn định hơn.
+
+\subsection{Giao diện huấn luyện mô hình}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{Images/split_dataset.png}
+    \caption{Chia tập dữ liệu huấn luyện và kiểm tra}
+    \label{fig:split}
+\end{figure}
+
+Bước chuẩn bị huấn luyện (Hình~\ref{fig:split}) hiển thị thông tin về quá trình chia dữ liệu, ví dụ 80\% cho huấn luyện và 20\% cho kiểm tra.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{Images/train.png}
+    \caption{Giao diện trong quá trình huấn luyện}
+    \label{fig:train_process}
+\end{figure}
+
+Khi người dùng nhấn "\textit{Bắt đầu Huấn luyện}", ứng dụng hiển thị tiến trình đang được huấn luyện.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{Images/train_2.png}
+    \caption{Hoàn tất huấn luyện mô hình}
+    \label{fig:train_done}
+\end{figure}
+
+Sau khi hoàn thành, ứng dụng tự động mở mục kết quả và hiển thị bảng điều khiển (dashboard) tổng hợp các chỉ số đánh giá (Hình~\ref{fig:train_done}).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{Images/train_3.png}
+    \caption{So sánh hiệu suất giữa các mô hình}
+    \label{fig:train_compare}
+\end{figure}
+
+Bảng điều khiển (Hình~\ref{fig:train_compare}) giúp so sánh hiệu suất giữa các mô hình theo các chỉ số RMSE và R².
+
+\subsection{Giao diện chạy thử mô hình}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{Images/predict.png}
+    \caption{Giao diện dự đoán doanh thu}
+    \label{fig:predict}
+\end{figure}
+
+Người dùng có thể chọn một trong các mô hình đã huấn luyện (ví dụ: Random Forest) và nhập các tham số đầu vào thông qua biểu mẫu \texttt{st.form}. Sau khi nhấn "\textit{Dự đoán}", ứng dụng tự động áp dụng quy trình tiền xử lý tương ứng và hiển thị kết quả doanh thu dự đoán ngay trên giao diện.

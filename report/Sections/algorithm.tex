@@ -1,0 +1,223 @@
+\section{Áp dụng thuật toán}
+
+Sau khi dữ liệu đã được làm sạch, xử lý và chuẩn bị ở Chương 3, bước tiếp theo là lựa chọn và áp dụng các thuật toán học máy phù hợp để xây dựng mô hình dự đoán.
+
+\subsection{Lựa chọn Nhóm Thuật toán}
+
+\subsubsection{Phân tích yêu cầu bài toán}
+
+Mục tiêu cốt lõi của dự án này là \textbf{dự đoán giá trị của biến \texttt{Weekly\_Sales} (Doanh số hàng tuần)}.  
+
+Từ quá trình Khám phá Dữ liệu (EDA) và Tiền xử lý, ta xác định:
+
+\begin{itemize}
+    \item \textbf{Biến mục tiêu (Target Variable):} \texttt{Weekly\_Sales}
+    \item \textbf{Bản chất của biến:} Đây là một \textit{giá trị số liên tục} (continuous), không phải là nhãn hoặc danh mục.
+    \item Giá trị có thể là bất kỳ số thực dương nào: ví dụ $15981.25$, $2079.65$, v.v.
+\end{itemize}
+
+Do đó, bài toán đặt ra câu hỏi:
+
+\begin{quote}
+\textit{“Doanh số tuần tới sẽ là bao nhiêu?”}
+\end{quote}
+
+\subsubsection{Lý do lựa chọn Hồi quy (Regression)}
+
+Dựa trên bản chất của biến mục tiêu, nhóm thuật toán phù hợp để giải quyết bài toán này là \textbf{Hồi quy (Regression)}.  
+
+Hồi quy là một lớp các thuật toán học máy có giám sát (\textit{Supervised Learning}) được thiết kế để dự đoán một giá trị đầu ra \textbf{liên tục}.  
+Mục tiêu của mô hình hồi quy là học một hàm toán học $f$ từ các đặc trưng đầu vào $X$ (ví dụ: \texttt{Store}, \texttt{Dept}, \texttt{Temperature}, \texttt{IsHoliday}) để ánh xạ đến giá trị đầu ra $y$ (tức là \texttt{Weekly\_Sales}) sao cho:
+
+\[
+y \approx f(X)
+\]
+
+Nói cách khác, mô hình sẽ cố gắng tìm ra một \textit{đường} hoặc \textit{siêu phẳng} biểu diễn mối quan hệ giữa các yếu tố đầu vào và doanh số.
+
+\subsubsection{Phân tích và loại trừ các nhóm thuật toán khác}
+
+Để làm rõ hơn lý do lựa chọn Hồi quy, bảng dưới đây trình bày sự khác biệt giữa các nhóm thuật toán phổ biến và lý do tại sao chúng không phù hợp với bài toán này:
+
+\begin{table}[H]
+\centering
+\caption{Phân tích các nhóm thuật toán và lý do loại trừ}
+\begin{tabularx}{\textwidth}{|p{3cm}|X|X|}
+\hline
+\textbf{Nhóm Thuật toán} & \textbf{Mục đích chính} & \textbf{Vì sao không phù hợp với bài toán này?} \\ \hline
+
+\textbf{Classification (Phân loại)} & 
+Dự đoán một nhãn hoặc danh mục rời rạc (ví dụ: ``Email là Spam/Không Spam'', ``Doanh thu là Cao/Thấp''). &
+Mục tiêu của chúng ta là dự đoán một \textit{giá trị số chính xác} (ví dụ: \$15{,}981), không phải một nhãn. Việc ép \texttt{Weekly\_Sales} thành nhãn sẽ làm mất nhiều thông tin liên tục. \\ \hline
+
+\textbf{Clustering (Phân cụm)} &
+Gom nhóm các điểm dữ liệu tương đồng mà không cần nhãn (học không giám sát). &
+Bài toán này có biến mục tiêu rõ ràng là \texttt{Weekly\_Sales}. Đây là một bài toán học có giám sát, nên không thể dùng phân cụm. \\ \hline
+
+\textbf{Association Rules (Luật kết hợp)} &
+Tìm các quy tắc đồng xuất hiện (ví dụ: ``Nếu mua Sữa thì thường mua Bánh mì''). &
+Kỹ thuật này dùng để tìm mối quan hệ giữa các đặc trưng, không dùng để dự đoán một giá trị số. \\ \hline
+
+\end{tabularx}
+\end{table}
+
+\subsubsection{Kết luận}
+
+Từ phân tích trên, có thể kết luận rằng:
+
+\begin{itemize}
+    \item Bản chất của bài toán là dự đoán một \textbf{biến liên tục}.
+    \item Do đó, nhóm thuật toán \textbf{Hồi quy (Regression)} là lựa chọn phù hợp nhất và duy nhất.
+    \item Các bước tiếp theo sẽ tập trung vào việc lựa chọn và đánh giá các thuật toán cụ thể trong nhóm Hồi quy, ví dụ:
+    \begin{itemize}
+        \item \texttt{Linear Regression}
+        \item \texttt{Ridge / Lasso Regression}
+        \item \texttt{Decision Tree Regression}
+        \item \texttt{Gradient Boosting / XGBoost / LightGBM}
+        \item \texttt{Random Forest Regressor}
+        \item \texttt{Neural Network (MLP Regressor)}
+    \end{itemize}
+\end{itemize}
+
+\subsection{Hồi quy tuyến tính (Linear Regression)}
+
+\subsubsection{Giới thiệu}
+Hồi quy tuyến tính (Linear Regression) là một thuật toán cơ bản, giả định rằng có một mối quan hệ tuyến tính giữa các đặc trưng đầu vào (ví dụ: \texttt{Temperature}, \texttt{CPI}) và biến mục tiêu (\texttt{Weekly\_Sales}).  
+Mô hình này cố gắng tìm ra phương trình đường thẳng phù hợp nhất để dự đoán $y$ từ $X$:
+
+\begin{equation}
+y = \beta_0 + \beta_1X_1 + \beta_2X_2 + \dots + \beta_pX_p + \epsilon
+\end{equation}
+
+\subsubsection{Lý do áp dụng}
+Linear Regression được áp dụng chủ yếu như một mô hình cơ sở (\textit{baseline model}).  
+Đây là mô hình đơn giản, dễ huấn luyện và cung cấp điểm chuẩn cho việc đánh giá các mô hình phức tạp hơn.  
+Mọi mô hình sau này đều cần chứng minh rằng hiệu quả vượt trội hơn mô hình tuyến tính cơ bản này.
+
+\subsubsection{Kết quả (Tập kiểm tra)}
+Sau khi huấn luyện trên \textbf{337,256 mẫu} và kiểm tra trên \textbf{84,314 mẫu}, kết quả thu được:
+
+\begin{itemize}
+    \item R-squared (R²): \textbf{0.0926}
+    \item MAE (Lỗi tuyệt đối trung bình): \textbf{\$14,561.79}
+    \item RMSE (Lỗi toàn phương trung bình): \textbf{\$21,752.04}
+\end{itemize}
+
+\subsubsection{Phân tích}
+\begin{itemize}
+    \item \textbf{R² = 0.0926:} Mô hình chỉ giải thích được 9.26\% sự biến động của \texttt{Weekly\_Sales}, tức là hầu như không có quan hệ tuyến tính giữa đặc trưng và mục tiêu.
+    \item \textbf{Sai số lớn:} MAE ở mức \$14,500 trong khi trung vị doanh số chỉ khoảng \$7,612. Điều này cho thấy độ sai lệch rất cao.
+\end{itemize}
+
+\textbf{Kết luận:} Hồi quy tuyến tính không phù hợp với bộ dữ liệu này.
+
+\subsection{Hồi quy Cây quyết định (Decision Tree Regression)}
+
+\subsubsection{Giới thiệu}
+Hồi quy Cây quyết định (Decision Tree Regression) là một mô hình phi tham số, hoạt động bằng cách chia dữ liệu thành các tập con nhỏ dựa trên các quy tắc \textit{if–then–else}.  
+Mục tiêu là chia dữ liệu sao cho các mẫu trong cùng một “lá” (\textit{leaf node}) có giá trị \texttt{Weekly\_Sales} gần nhau nhất.
+
+\subsubsection{Lý do áp dụng}
+Decision Tree được chọn vì những lý do sau:
+\begin{itemize}
+    \item \textbf{Nắm bắt quan hệ phi tuyến tính:} Không giống Linear Regression, mô hình này có thể học được mối quan hệ phức tạp giữa các đặc trưng.
+    \item \textbf{Tự động học quy tắc kết hợp:} Ví dụ, \textit{“Nếu Store = 1 và IsHoliday = 1 thì Weekly\_Sales tăng mạnh.”}
+    \item \textbf{Nhược điểm:} Dễ bị \textit{overfitting} (học vẹt) nếu cây quá sâu.
+\end{itemize}
+
+\subsubsection{Kết quả (Tập kiểm tra)}
+\begin{itemize}
+    \item R-squared (R²): \textbf{0.9617}
+    \item MAE (Lỗi tuyệt đối trung bình): \textbf{\$1,766.13}
+    \item RMSE (Lỗi toàn phương trung bình): \textbf{\$5,568.92}
+\end{itemize}
+
+\subsubsection{Phân tích}
+\begin{itemize}
+    \item \textbf{Hiệu suất vượt trội:} R² đạt 96,17\%, mô hình đã học được phần lớn quy luật ẩn trong dữ liệu.
+    \item \textbf{Sai số giảm mạnh:} 
+    \begin{itemize}
+        \item MAE giảm từ \$14,561 xuống \$1,766 (giảm 88\%)
+        \item RMSE giảm từ \$21,752. xuống \$4,466 (giảm 79\%)
+    \end{itemize}
+    \item \textbf{Kết luận:} Decision Tree rất phù hợp với bài toán dự đoán doanh số, xác nhận rằng mối quan hệ giữa các đặc trưng là phi tuyến tính.
+\end{itemize}
+
+\subsection{Hồi quy Rừng ngẫu nhiên (Random Forest Regression)}
+
+\subsubsection{Giới thiệu}
+Random Forest là một thuật toán học máy Ensemble (Kết hợp). Thay vì chỉ xây dựng một Cây quyết định (Decision Tree) duy nhất, nó xây dựng một "khu rừng" gồm hàng trăm cây (trong trường hợp của chúng ta là 100 cây).
+
+Nguyên lý hoạt động:
+
+\begin{itemize}
+    \item \textbf{Bagging (Bootstrap Aggregating)}: Mỗi cây trong rừng được huấn luyện trên một mẫu dữ liệu ngẫu nhiên (có lặp lại) từ tập huấn luyện.
+
+    \item \textbf{Random Feature}: Tại mỗi nút của cây, thay vì xem xét tất cả các đặc trưng, cây chỉ được phép chọn ngẫu nhiên từ một tập con các đặc trưng.
+    
+    \item \textbf{Bỏ phiếu (Averaging)}: Đối với bài toán Hồi quy, dự đoán cuối cùng của Random Forest là giá trị \textbf{trung bình} của dự đoán từ tất cả 100 cây.
+\end{itemize}
+
+\subsubsection{Lý do áp dụng}
+Chúng ta đã thấy Decision Tree (R²=0.9617) hoạt động rất tốt, nhưng nó có một điểm yếu chí mạng là overfitting (học vẹt). Một cây quyết định đơn lẻ sẽ cố gắng học thuộc lòng mọi chi tiết trong dữ liệu huấn luyện, bao gồm cả nhiễu, dẫn đến việc dự đoán kém trên dữ liệu mới.
+
+Random Forest là giải pháp trực tiếp cho vấn đề này:
+\begin{itemize}
+    \item \textbf{Chống Overfitting}: Bằng cách lấy trung bình dự đoán của 100 cây (mỗi cây hơi khác nhau một chút), các lỗi và "sự học vẹt" ngẫu nhiên của từng cây sẽ tự triệt tiêu lẫn nhau.
+
+    \item \textbf{Tính ổn định (Robustness)}: Mô hình cuối cùng trở nên ổn định và có khả năng \textbf{tổng quát hóa (generalize)} tốt hơn trên dữ liệu mà nó chưa từng thấy (tập test).
+    
+    \item \textbf{Độ chính xác cao}: Đây là một trong những thuật toán "tiêu chuẩn vàng" trong học máy, thường xuyên cho độ chính xác cao mà không cần tinh chỉnh quá nhiều.
+\end{itemize}
+
+\subsubsection{Kết quả (Tập kiểm tra)}
+\begin{itemize}
+    \item R-squared (R²): \textbf{0.9778}
+    \item MAE (Lỗi tuyệt đối trung bình): \textbf{\$1,330.80}
+    \item RMSE (Lỗi toàn phương trung bình): \textbf{\$3,404.74}
+\end{itemize}
+
+\subsubsection{Phân tích}
+\begin{itemize}
+    \item \textbf{So sánh với Decision Tree}: R² đã tăng từ 0.9617 lên 0.9778. Quan trọng hơn, chỉ số lỗi MAE/RMSE đã giảm từ $1,766 / $4,466 xuống còn $1,330 / $3,404.
+
+    \item \textbf{Ý nghĩa}: Điều này cho thấy Random Forest không chỉ giữ được khả năng nắm bắt các quy luật phi tuyến tính phức tạp của Decision Tree, mà còn cải thiện nó bằng cách giảm nhiễu và tạo ra các dự đoán chính xác hơn.
+    
+    \item \textbf{Kết luận}: Random Forest là mô hình vượt trội, cân bằng được giữa độ chính xác cao và khả năng chống overfitting, khiến nó trở thành mô hình tốt nhất trong ba mô hình chúng ta đã thử nghiệm.
+\end{itemize}
+
+\subsection{So sánh kết quả}
+
+\subsubsection{Bảng so sánh hiệu suất}
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\caption{So sánh hiệu suất giữa các thuật toán}
+\begin{tabularx}{\textwidth}{|l|X|X|X|}
+\hline
+\textbf{Chỉ số (Metric)} & \textbf{Linear Regression (Cơ sở)} & \textbf{Decision Tree Regression (Bị Overfitting)} & \textbf{Random Forest Regression (Mô hình tối ưu)} \\ \hline
+R-squared (R²) & 0.0926 & 0.9617 & 0.9778 \\ \hline
+MAE & \$14{,}561.79 & \$1{,}766.13 & \$1{,}330.80 \\ \hline
+\end{tabularx}
+\end{table}
+
+\subsubsection{Trực quan hóa so sánh}
+Biểu đồ so sánh (MAE, R²) cho thấy một câu chuyện rõ ràng:
+\begin{itemize}
+    \item \textbf{Linear Regression} thất bại trong việc mô hình hóa dữ liệu (lỗi cao nhất).
+    
+    \item \textbf{Decision Tree} cải thiện đáng kể bằng cách nắm bắt các quy tắc phi tuyến tính (lỗi giảm mạnh).
+    
+    \item \textbf{Random Forest} tinh chỉnh và tối ưu hóa, giảm lỗi xuống mức thấp nhất bằng cách kết hợp sức mạnh của nhiều cây và loại bỏ nhiễu.
+\end{itemize}
+
+\subsubsection{Kết luận chung}
+Cuộc thử nghiệm này minh họa một quy trình chuẩn trong khoa học dữ liệu:
+\begin{itemize}
+    \item Bắt đầu với một \textbf{mô hình cơ sở (Linear Regression)} để hiểu giới hạn của dữ liệu (là tuyến tính hay không).
+    
+    \item Thử một \textbf{mô hình phức tạp hơn (Decision Tree)} để nắm bắt các quy luật phi tuyến tính, chấp nhận rủi ro overfitting.
+    
+    \item Kết thúc bằng một \textbf{mô hình Ensemble (Random Forest)} để giữ lại sức mạnh của mô hình phức tạp nhưng loại bỏ overfitting, tạo ra một mô hình cuối cùng mạnh mẽ, chính xác và đáng tin cậy.
+\end{itemize}
