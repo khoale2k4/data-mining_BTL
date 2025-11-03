@@ -6,7 +6,7 @@ import pipeline
 from pipeline import NUMERIC_FEATURES 
 
 if 'step' not in st.session_state:
-    st.session_state.step = 0 .
+    st.session_state.step = 0
     st.session_state.df_raw = None
     st.session_state.df_step_1_1 = None
     st.session_state.df_step_1_2 = None
