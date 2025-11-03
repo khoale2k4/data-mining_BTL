@@ -1,7 +1,8 @@
 *
-
 !Images/
+!Images/**
 !Sections/
+!Sections/**
 !hcmut.sty
 !main.tex
 !makefile
