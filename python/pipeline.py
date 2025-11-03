@@ -90,7 +90,7 @@ def run_training_pipeline(X_train, X_test, y_train, y_test):
     models = {} 
 
     start_time = time.time()
-    lr_model = LinearRegression()
+    lr_model = LinearRegression() # mô hình LinearRegression ở đây nè
     lr_model.fit(X_train, y_train)
     y_pred_lr = lr_model.predict(X_test)
     train_time = time.time() - start_time
@@ -99,7 +99,7 @@ def run_training_pipeline(X_train, X_test, y_train, y_test):
     models["Linear Regression"] = lr_model
 
     start_time = time.time()
-    dt_model = DecisionTreeRegressor(random_state=42)
+    dt_model = DecisionTreeRegressor(random_state=42) # mô hình DecisionTreeRegressor
     dt_model.fit(X_train, y_train)
     y_pred_dt = dt_model.predict(X_test)
     train_time = time.time() - start_time
@@ -108,7 +108,7 @@ def run_training_pipeline(X_train, X_test, y_train, y_test):
     models["Decision Tree"] = dt_model
 
     start_time = time.time()
-    rf_model = RandomForestRegressor(n_estimators=100, random_state=42, n_jobs=-1)
+    rf_model = RandomForestRegressor(n_estimators=100, random_state=42, n_jobs=-1) # mô hình RandomForestRegressor
     rf_model.fit(X_train, y_train)
     y_pred_rf = rf_model.predict(X_test)
     train_time = time.time() - start_time
