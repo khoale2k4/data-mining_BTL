@@ -26,7 +26,7 @@ jobs:
         env:
           GDRIVE_CREDENTIALS: ${{ secrets.GDRIVE_CREDENTIALS }}
         run: |
-          echo "$GDRIVE_CREDENTIALS" > credentials.json
+          echo "$GDRIVE_CREDENTIALS" | base64 --decode > credentials.json
 
           python3 <<'EOF'
           from google.oauth2 import service_account
