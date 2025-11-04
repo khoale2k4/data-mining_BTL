@@ -23,37 +23,27 @@ jobs:
       - name: Install Google API client
         run: pip install google-auth google-auth-httplib2 google-auth-oauthlib google-api-python-client
 
-      - name: Upload to Google Drive
+      - name: Upload PDF to Google Drive (overwrite)
         env:
           GDRIVE_CREDENTIALS: ${{ secrets.GDRIVE_CREDENTIALS }}
         run: |
           echo "$GDRIVE_CREDENTIALS" | base64 --decode > credentials.json
-
-          python3 <<'EOF'
+          python <<'EOF'
           from google.oauth2 import service_account
           from googleapiclient.discovery import build
           from googleapiclient.http import MediaFileUpload
-          import os
 
-          FILE_PATH = "report/DataMining-ReportBTL.pdf"
-          FOLDER_ID = None  # Hoặc thay bằng ID thư mục Google Drive
+          FILE_ID = "10VWcl16LboKoA9Ns00ralTIU6zSOyOBK"  # file cần ghi đè
+          LOCAL_PATH = "report/DataMining-ReportBTL.pdf"
 
-          creds = service_account.Credentials.from_service_account_file(
-              "credentials.json",
-              scopes=["https://www.googleapis.com/auth/drive.file"]
-          )
+          SCOPES = ["https://www.googleapis.com/auth/drive"]
+          creds = service_account.Credentials.from_service_account_file("credentials.json", scopes=SCOPES)
           service = build("drive", "v3", credentials=creds)
 
-          file_metadata = {"name": os.path.basename(FILE_PATH)}
-          if FOLDER_ID:
-              file_metadata["parents"] = [FOLDER_ID]
-
-          media = MediaFileUpload(FILE_PATH, mimetype="application/pdf")
-          uploaded = service.files().create(
-              body=file_metadata,
-              media_body=media,
-              fields="id"
+          media = MediaFileUpload(LOCAL_PATH, mimetype="application/pdf", resumable=True)
+          updated_file = service.files().update(
+              fileId=FILE_ID,
+              media_body=media
           ).execute()
-
-          print("✅ Uploaded to Google Drive, file ID:", uploaded.get("id"))
+          print(f"File overwritten successfully: {updated_file.get('id')}")
           EOF
