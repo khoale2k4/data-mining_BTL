@@ -1,7 +1,7 @@
-# Bỏ qua tất cả mọi thứ
 *
 
 !app.py
 !pipeline.py
+!merge_csv_file.py
 
 !/.gitignore
