@@ -1,0 +1,58 @@
+name: Upload PDF to Google Drive
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Google API client
+        run: pip install google-auth google-auth-httplib2 google-auth-oauthlib google-api-python-client
+
+      - name: Upload to Google Drive
+        env:
+          GDRIVE_CREDENTIALS: ${{ secrets.GDRIVE_CREDENTIALS }}
+        run: |
+          echo "$GDRIVE_CREDENTIALS" > credentials.json
+
+          python3 <<'EOF'
+          from google.oauth2 import service_account
+          from googleapiclient.discovery import build
+          from googleapiclient.http import MediaFileUpload
+          import os
+
+          FILE_PATH = "report/DataMining-ReportBTL.pdf"
+          FOLDER_ID = None  # Hoặc thay bằng ID thư mục Google Drive
+
+          creds = service_account.Credentials.from_service_account_file(
+              "credentials.json",
+              scopes=["https://www.googleapis.com/auth/drive.file"]
+          )
+          service = build("drive", "v3", credentials=creds)
+
+          file_metadata = {"name": os.path.basename(FILE_PATH)}
+          if FOLDER_ID:
+              file_metadata["parents"] = [FOLDER_ID]
+
+          media = MediaFileUpload(FILE_PATH, mimetype="application/pdf")
+          uploaded = service.files().create(
+              body=file_metadata,
+              media_body=media,
+              fields="id"
+          ).execute()
+
+          print("✅ Uploaded to Google Drive, file ID:", uploaded.get("id"))
+          EOF
