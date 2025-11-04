@@ -126,7 +126,7 @@ if st.session_state.step >= 4:
 if st.session_state.step >= 5:
     with st.expander("Bước 3.3: Tạo đặc trưng (Feature Engineering)", expanded=(st.session_state.step == 5)):
         st.write("**Hành động:** Chuyển đổi các cột `Date`, `IsHoliday`, và `Type` thành định dạng số.")
-        st.code("# Chuyển 'Date' thành Year, Month, Week, Day\n# Chuyển 'IsHoliday' (True/False) thành 1/0\n# Chuyển 'Type' (A,B,C) thành 3 cột 1/0 (One-Hot)", language="python")
+        st.code("# Chuyển 'Date' thành Year, Month, Week, Day\n# Chuyển 'IsHoliday' (True/False) thành 1/0\n# Chuyển 'Type' (A,B,C) thành 3 cột 1/0 (One-Hot)", language="python") # binary, encode
         st.write("**Kết quả:**")
         st.dataframe(st.session_state.df_step_1_3.head())
         if st.session_state.step == 5:
