@@ -202,18 +202,113 @@ MAE & \$14{,}561.79 & \$1{,}766.13 & \$1{,}330.80 \\ \hline
 \end{tabularx}
 \end{table}
 
-\subsubsection{Trực quan hóa so sánh}
-Biểu đồ so sánh (MAE, R²) cho thấy một câu chuyện rõ ràng:
+\subsubsection{Trực quan hóa hiệu suất dự đoán}
+
+Việc phân tích biểu đồ giúp ta hiểu sâu hơn về hành vi của từng mô hình vượt ra ngoài các con số thống kê.
+
 \begin{itemize}
-    \item \textbf{Linear Regression} thất bại trong việc mô hình hóa dữ liệu (lỗi cao nhất).
+    \item \textbf{Linear Regression (Mô hình tuyến tính):}
+    Như quan sát trong Hình \ref{fig:linear_performance}, mô hình thất bại hoàn toàn trong việc nắm bắt xu hướng dữ liệu. Biểu đồ phân tán (Hình \ref{subfig:linear_act_vs_pred}) cho thấy các điểm dự đoán nằm rất xa đường lý tưởng màu đỏ. Biểu đồ phần dư (Hình \ref{subfig:linear_residuals}) cho thấy lỗi có cấu trúc rõ ràng (không ngẫu nhiên), khẳng định giả định tuyến tính là sai lầm.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Images/actual_vs_predicted_linear_regression.png}
+        \caption{Thực tế vs. Dự đoán}
+        \label{subfig:linear_act_vs_pred}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Images/residuals_linear_regression.png}
+        \caption{Phân bố phần dư (Residuals)}
+        \label{subfig:linear_residuals}
+    \end{subfigure}
+    \caption{Hiệu suất yếu kém của mô hình Linear Regression}
+    \label{fig:linear_performance}
+\end{figure}
+
+\begin{itemize}
+    \item \textbf{Decision Tree (Cây quyết định):}
+    Hình \ref{fig:dt_performance} cho thấy sự cải thiện đáng kể. Các điểm dự đoán đã bám sát đường thực tế hơn rất nhiều. Tuy nhiên, biểu đồ phần dư vẫn còn một số điểm ngoại lệ lớn, dấu hiệu của việc mô hình có thể đang cố học các nhiễu trong dữ liệu huấn luyện.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Images/actual_vs_predicted_decision_tree.png}
+        \caption{Thực tế vs. Dự đoán}
+        \label{subfig:dt_act_vs_pred}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Images/residuals_decision_tree.png}
+        \caption{Phân bố phần dư (Residuals)}
+        \label{subfig:dt_residuals}
+    \end{subfigure}
+    \caption{Hiệu suất cải thiện của Decision Tree (có dấu hiệu overfitting)}
+    \label{fig:dt_performance}
+\end{figure}
+
+\begin{itemize}
+    \item \textbf{Random Forest (Rừng ngẫu nhiên):}
+    Đây là mô hình tối ưu nhất (Hình \ref{fig:rf_performance}). Biểu đồ thực tế vs. dự đoán cho thấy sự tập trung dày đặc quanh đường lý tưởng. Quan trọng nhất, biểu đồ phần dư cho thấy các lỗi được phân bố ngẫu nhiên hơn và tập trung rất sát quanh trục 0, chứng tỏ mô hình đã loại bỏ nhiễu hiệu quả.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Images/actual_vs_predicted_random_forest.png}
+        \caption{Thực tế vs. Dự đoán}
+        \label{subfig:rf_act_vs_pred}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Images/residuals_random_forest.png}
+        \caption{Phân bố phần dư (Residuals)}
+        \label{subfig:rf_residuals}
+    \end{subfigure}
+    \caption{Hiệu suất tối ưu của Random Forest}
+    \label{fig:rf_performance}
+\end{figure}
+
+\subsubsection{Phân tích Đường cong học tập (Learning Curve)}
+
+Để hiểu rõ hơn về vấn đề Underfitting (chưa học đủ) và Overfitting (học vẹt), chúng ta xem xét đường cong học tập của mô hình tệ nhất và tốt nhất.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Images/learning_curve_linear_regression.png}
+        \caption{Linear Regression: Dấu hiệu High Bias (Underfitting)}
+        \label{fig:learning_curve_linear}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Images/learning_curve_random_forest.png}
+        \caption{Random Forest: Cân bằng tốt Bias-Variance}
+        \label{fig:learning_curve_rf}
+    \end{subfigure}
+    \caption{So sánh Đường cong học tập (Learning Curves)}
+    \label{fig:learning_curve_comparison}
+\end{figure}
+
+\textbf{Nhận xét:}
+\begin{itemize}
+    \item \textbf{Linear Regression:} Cả điểm huấn luyện (Training score) và điểm kiểm tra (Validation score) đều hội tụ ở mức rất thấp (lỗi cao). Khoảng cách giữa hai đường rất nhỏ. Đây là đặc điểm điển hình của \textbf{Underfitting (High Bias)} - mô hình quá đơn giản để nắm bắt dữ liệu.
     
-    \item \textbf{Decision Tree} cải thiện đáng kể bằng cách nắm bắt các quy tắc phi tuyến tính (lỗi giảm mạnh).
-    
-    \item \textbf{Random Forest} tinh chỉnh và tối ưu hóa, giảm lỗi xuống mức thấp nhất bằng cách kết hợp sức mạnh của nhiều cây và loại bỏ nhiễu.
+    \item \textbf{Random Forest:} Điểm huấn luyện rất cao (gần 1.0), trong khi điểm kiểm tra tăng dần và tiệm cận mức cao. Có một khoảng cách (gap) giữa hai đường, cho thấy mô hình học rất tốt trên tập train và tổng quát hóa khá tốt trên tập test. Việc sử dụng Ensemble (Rừng) đã giúp kiểm soát variance, tránh bị overfitting nặng như một cây quyết định đơn lẻ.
 \end{itemize}
 
 \subsubsection{Kết luận chung}
-Cuộc thử nghiệm này minh họa một quy trình chuẩn trong khoa học dữ liệu:
 \begin{itemize}
     \item Bắt đầu với một \textbf{mô hình cơ sở (Linear Regression)} để hiểu giới hạn của dữ liệu (là tuyến tính hay không).
     

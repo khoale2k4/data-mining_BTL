@@ -185,6 +185,7 @@ Trong bối cảnh bán lẻ, giá trị thiếu ở các cột giảm giá (\te
     \item \textbf{Tại sao không xoá dữ liệu:} Xoá 1,285 hàng (0.3\%) sẽ làm mất thông tin quý giá khác. 
     \item \textbf{Tại sao không lấy giá trị tuyệt đối:} Dễ gây sai lệch vì biến âm thành dương. 
     \item \textbf{Giải pháp chọn:} Chuyển giá trị âm thành \texttt{0} là hợp lý nhất, xem như "không có doanh thu". 
+    \item \textbf{Biện luận:} Để tập trung vào dự báo nhu cầu mua sắm thay vì dòng tiền kế toán, quyết định đưa các giá trị âm về 0 để mô hình không bị nhiễu bởi các giao dịch hoàn trả phức tạp.
 \end{itemize}
 
 \paragraph{Kỹ thuật áp dụng:} 
@@ -209,6 +210,12 @@ Tạo các đặc trưng mới:
 \begin{itemize}
     \item \textbf{Xu hướng (Trend):} Cột \texttt{Year} giúp mô hình nhận biết sự thay đổi doanh số qua các năm.
     \item \textbf{Tính thời vụ (Seasonality):} \texttt{Month} và \texttt{WeekOfYear} hỗ trợ mô hình học chu kỳ bán hàng.
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.8\linewidth]{Images/sales_seasonality.png}
+        \caption{Tính thời vụ}
+        \label{fig:seasonality}
+    \end{figure}
     \item \textbf{Mã hóa biến Phân loại bằng One-Hot Encoding:} cho phép mô hình (đặc biệt là Linear Regression) gán một \textbf{trọng số (hệ số) riêng biệt} cho từng loại mà không tạo ra bất kỳ một "thứ tự" giả mạo nào
 \end{itemize}
 
@@ -253,25 +260,49 @@ Sử dụng \texttt{SelectKBest} với hàm \texttt{f\_regression} để đánh 
     \item \textbf{Không quan trọng:} \texttt{Fuel\_Price} (giá xăng) và \texttt{Temperature} (nhiệt độ) có điểm số gần như bằng 0. Điều này xác nhận chúng gần như không có ảnh hưởng (một cách tuyến tính), hoàn toàn phù hợp với kết quả từ biểu đồ tương quan.
 \end{itemize}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{Images/sales_vs_size_scatter.png}
+    \caption{Mối quan hệ giữa Weekly\_Sales và Size}
+    \label{fig:sales_vs_size_scatter}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{Images/sales_by_type_boxplot.png}
+    \caption{Mối quan hệ giữa Weekly\_Sales và các Type}
+    \label{fig:sales_by_type_boxplot}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{Images/feature_importance.png}
+    \caption{Tầm quan trọng của đặc trưng}
+    \label{fig:feature_importance}
+\end{figure}
+
 \subsubsection{Chuẩn hóa dữ liệu (Normalization)}
 
-\paragraph{Hành động:} 
+\paragraph{Chiến lược:} 
 Áp dụng \texttt{StandardScaler} để chuẩn hóa các cột số: \texttt{Temperature}, \texttt{Fuel\_Price}, \texttt{CPI}, \texttt{Size} \texttt{Unemployment}, và các cột \texttt{MarkDown}.
 
-\paragraph{Kết quả:} 
-Sau khi chuẩn hóa, tất cả các đặc trưng có \texttt{mean $\sim$0,00} và \texttt{std $\sim$1,00}.
-
-\paragraph{Lý do:} 
-Các đặc trưng ban đầu có thang đo rất khác nhau (ví dụ: \texttt{MarkDown1} tới 88,000 trong khi \texttt{Fuel\_Price} chỉ quanh 3–4).  
-Chuẩn hóa theo \textbf{Z-score} giúp đưa chúng về cùng thang đo, đảm bảo mô hình học dựa trên sức mạnh dự đoán thực, không bị ảnh hưởng bởi độ lớn của giá trị.
+\paragraph{Quy trình thực hiện:} 
+Để đảm bảo tính khách quan và tránh hiện tượng Rò rỉ dữ liệu (Data Leakage), việc chuẩn hóa sẽ không được thực hiện ngay trên toàn bộ tập dữ liệu gốc. Thay vào đó, quy trình sẽ là:
+\begin{itemize}
+    \item Giữ nguyên dữ liệu thô ở bước này.
+    
+    \item Khởi tạo đối tượng Scaler.
+    
+    \item Việc tính toán tham số (fit) và biến đổi (transform) sẽ được thực hiện sau khi dữ liệu đã được chia tách thành tập Huấn luyện (Train) và Kiểm tra (Test).
+\end{itemize}
 
 \subsection{Kết quả sau tiền xử lý}
 
-\subsubsection{Thay đổi về cấu trúc và tính đầy đủ (Từ \texttt{df.info()})}
+\subsubsection{Thay đổi về cấu trúc và tính đầy đủ}
 
 \begin{itemize}
     \item \textbf{Tính toàn vẹn dữ liệu:} Tổng số bản ghi vẫn là 421{,}570, cho thấy không có hàng nào bị xóa trong quá trình làm sạch.
-    \item \textbf{Xử lý giá trị thiếu:} Tất cả 21 cột hiện tại đều có 421{,}570 giá trị \texttt{non-null}. Điều này xác nhận rằng 5 cột \texttt{MarkDown1–5} (trước đây bị thiếu dữ liệu nghiêm trọng) đã được điền đầy đủ bằng giá trị 0.
+    \item \textbf{Xử lý giá trị thiếu:} Tất cả 21 cột hiện tại đều có 421{,}570 giá trị \texttt{non-null}. Điều này xác nhận rằng 5 cột \texttt{MarkDown1-5} đã được điền đầy đủ bằng giá trị 0.
     \item \textbf{Feature Engineering:} 
     \begin{itemize}
         \item Tổng số cột tăng từ 16 lên 21 cột.
@@ -280,14 +311,6 @@ Chuẩn hóa theo \textbf{Z-score} giúp đưa chúng về cùng thang đo, đ�
         \item Cột \texttt{IsHoliday} (trước đây là \texttt{bool}) đã được chuyển đổi thành kiểu \texttt{int64} (0 hoặc 1).
     \end{itemize}
     \item \textbf{Kiểu dữ liệu:} Tập dữ liệu cuối cùng gồm 11 cột \texttt{float}, 10 cột \texttt{int} — tất cả đều là định dạng số mà mô hình học máy có thể đọc được.
-\end{itemize}
-
-\subsubsection{Chuẩn hóa và biến đổi dữ liệu (Từ \texttt{df.describe()})}
-
-\begin{itemize}
-    \item \textbf{Xác nhận chuẩn hóa:} Tất cả 10 cột được đưa vào \texttt{StandardScaler} (\texttt{Temperature}, \texttt{Fuel\_Price}, \texttt{MarkDown1–5}, \texttt{CPI}, \texttt{Unemployment}, \texttt{Size}) đều có giá trị trung bình xấp xỉ 0.00 và độ lệch chuẩn là 1.00.
-    \item \textbf{Ý nghĩa:} Việc chuẩn hóa loại bỏ ảnh hưởng của thang đo khác biệt, giúp mô hình đánh giá đúng tầm quan trọng thực sự của các đặc trưng.
-    \item \textbf{Quan sát từ \texttt{df.head()}:} Các cột như \texttt{Temperature} và \texttt{Fuel\_Price} không còn giá trị gốc (ví dụ: 42.31, 2.572) mà là các giá trị Z-score đã được chuẩn hóa (ví dụ: -0.963, -1.720).
 \end{itemize}
 
 \subsubsection{Xử lý nhiễu (Từ log xử lý dữ liệu)}
@@ -311,11 +334,10 @@ Giá trị Null & Có (ở 5 cột MarkDown) & Không \\ \hline
 Cột \texttt{Date} & \texttt{object (chuỗi)} & Bị loại bỏ, thay bằng \texttt{Year}, \texttt{Month}, \texttt{WeekOfYear}, \texttt{Day} \\ \hline
 Cột \texttt{Type} & \texttt{object (chuỗi)} & Bị loại bỏ, thay bằng \texttt{Type\_A}, \texttt{Type\_B}, \texttt{Type\_C} \\ \hline
 Cột \texttt{IsHoliday} & \texttt{bool (True/False)} & \texttt{int (1/0)} \\ \hline
-Thang đo (Scale) & Khác biệt lớn (ví dụ: 100.14 vs 88,646.76) & Các cột số liên tục đã được chuẩn hóa (\texttt{Mean=0, Std=1}) \\ \hline
 Giá trị âm \texttt{Weekly\_Sales} & Có (1,285 bản ghi) & Không (min = 0) \\ \hline
 \end{tabularx}
 \end{table}
 
 \subsubsection{Kết luận}
 
-Tập dữ liệu \texttt{df} hiện đã hoàn toàn sạch, đầy đủ, có cấu trúc và được chuẩn hóa. Nó đã sẵn sàng cho bước tiếp theo là \textbf{phân chia dữ liệu (train/test split)} và đưa vào các mô hình học máy để huấn luyện.
+Tập dữ liệu \texttt{df} hiện đã hoàn toàn sạch (không còn giá trị thiếu hay nhiễu) và có cấu trúc phù hợp (đã trích xuất đặc trưng số). Nó đã sẵn sàng cho bước tiếp theo là \textbf{phân chia dữ liệu (train/test split)} và đưa vào các mô hình học máy để huấn luyện.

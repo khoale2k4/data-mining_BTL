@@ -1,6 +1,7 @@
 *
 
 !app.py
+!full.py
 !pipeline.py
 !merge_csv_file.py
 
