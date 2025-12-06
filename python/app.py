@@ -1,7 +1,7 @@
-# app.py
 import streamlit as st
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 import io
 import pipeline 
 from pipeline import NUMERIC_FEATURES 
@@ -193,90 +193,94 @@ if st.session_state.step >= 7:
                 go_to_step_8_train()
                 st.rerun()
 
-if st.session_state.step >= 8:
-    if st.session_state.results is None:
-        params = st.session_state.get('train_params', {'rf_n_estimators': 50})
+if st.session_state.step >= 7:
+    if 'split_info' not in st.session_state or st.session_state.get('split_type') != 'time_series':
         
-        with st.spinner(f"Đang huấn luyện với cấu hình: RF Trees={params.get('rf_n_estimators')}..."):
-            X_train = st.session_state.X_train
-            X_test = st.session_state.X_test
-            y_train = st.session_state.y_train
-            y_test = st.session_state.y_test
-            
-            results, models = pipeline.run_training_pipeline(X_train, X_test, y_train, y_test, params=params)
-            
-            st.session_state.results = results
-            st.session_state.models = models
-        st.rerun()
+        df = st.session_state.df.copy()
+        target_col = 'Weekly_Sales'
+        date_col = 'Date'
 
-    with st.expander("Bước 5: Kết quả & Đánh giá", expanded=(st.session_state.step==8)):
-        if 'train_params' in st.session_state:
-            st.caption(f"Kết quả chạy với cấu hình: {st.session_state.train_params}")
-            
-        results = st.session_state.results
+        if date_col in df.columns:
+            df[date_col] = pd.to_datetime(df[date_col])
+            df = df.sort_values(by=date_col).reset_index(drop=True)
         
-        st.write("##### 1. Chỉ số Đánh giá (Metrics)")
-        c1, c2, c3 = st.columns(3)
+        X = df.drop(columns=[target_col, date_col], errors='ignore')
+        y = df[target_col]
+
+        split_ratio = 0.8
+        split_index = int(len(df) * split_ratio)
+
+        X_train, X_test = X.iloc[:split_index], X.iloc[split_index:]
+        y_train, y_test = y.iloc[:split_index], y.iloc[split_index:]
+
+        scaler = StandardScaler()
+        X_train_scaled = scaler.fit_transform(X_train)
+        X_test_scaled = scaler.transform(X_test)
+
+        st.session_state.X_train = X_train_scaled
+        st.session_state.X_test = X_test_scaled
+        st.session_state.y_train = y_train
+        st.session_state.y_test = y_test
         
-        with c1:
-            rmse = results['Linear Regression']['RMSE']
-            r2 = results['Linear Regression']['R-squared (R²)']
-            st.metric("Linear Regression", f"${rmse:,.0f}", f"R² = {r2:.4f}")
+        st.session_state.split_info = {
+            "Loại chia": "Time-Series Split (Theo thời gian)",
+            "Tỷ lệ Train/Test": f"{int(split_ratio*100)}% / {int((1-split_ratio)*100)}%",
+            "Số lượng mẫu Train": len(X_train),
+            "Số lượng mẫu Test": len(X_test),
+            "Khoảng thời gian Train": f"Đầu: {df[date_col].iloc[0].date()} -> Cuối: {df[date_col].iloc[split_index-1].date()}",
+            "Khoảng thời gian Test": f"Đầu: {df[date_col].iloc[split_index].date()} -> Cuối: {df[date_col].iloc[-1].date()}"
+        }
+        st.session_state.split_type = 'time_series'
 
-        with c2:
-            rmse = results['Decision Tree']['RMSE']
-            r2 = results['Decision Tree']['R-squared (R²)']
-            st.metric("Decision Tree", f"${rmse:,.0f}", f"R² = {r2:.4f}")
-
-        with c3:
-            rmse = results['Random Forest']['RMSE']
-            r2 = results['Random Forest']['R-squared (R²)']
-            st.metric("Random Forest", f"${rmse:,.0f}", f"R² = {r2:.4f}")
+    with st.expander("Bước 4: Chia tập Train/Test & Cấu hình Mô hình", expanded=(st.session_state.step==7)):
+        st.write("**1. Kết quả Chia & Chuẩn hóa (Time-Series):**")
+        
+        st.json(st.session_state.split_info)
+        
+        st.info("Dữ liệu đã được sắp xếp theo thời gian. Tập Train là quá khứ, tập Test là tương lai.")
 
         st.divider()
-
-        t1, t2 = st.tabs(["So sánh Hiệu suất", "Thực tế vs Dự đoán"])
         
-        with t1:
-            c_chart1, c_chart2 = st.columns(2)
-            with c_chart1:
-                st.write("**So sánh RMSE (Thấp hơn là tốt hơn):**")
-                df_rmse = pd.DataFrame({'Model': results.keys(), 'RMSE': [v['RMSE'] for v in results.values()]})
-                st.bar_chart(df_rmse.set_index('Model'))
+        st.write("**2. Cấu hình Tham số Huấn luyện (Hyperparameters):**")
+        st.info("Tại đây bạn có thể thử nghiệm thay đổi tham số để xem mô hình thay đổi ra sao.")
+        
+        with st.form("train_config_form"):
+            col1, col2 = st.columns(2)
             
-            with c_chart2:
-                st.write("**So sánh R² (Cao hơn là tốt hơn - Max 1.0):**")
-                df_r2 = pd.DataFrame({'Model': results.keys(), 'R²': [v['R-squared (R²)'] for v in results.values()]})
-                st.bar_chart(df_r2.set_index('Model'))
+            with col1:
+                st.subheader("Decision Tree")
+                dt_depth = st.number_input(
+                    "Độ sâu tối đa (Max Depth)", 
+                    min_value=0, max_value=50, value=0, 
+                    help="Để 0 nếu muốn không giới hạn (None). Độ sâu càng lớn càng dễ Overfitting."
+                )
+            
+            with col2:
+                st.subheader("Random Forest")
+                rf_trees = st.slider(
+                    "Số lượng cây (n_estimators)", 
+                    min_value=10, max_value=200, value=50, step=10,
+                    help="Càng nhiều cây càng chính xác nhưng chạy càng lâu."
+                )
+                rf_depth = st.number_input(
+                    "Độ sâu tối đa của Rừng (Max Depth)", 
+                    min_value=0, max_value=50, value=0,
+                    help="Để 0 nếu muốn không giới hạn."
+                )
 
-        with t2:
-            col_chart, col_control = st.columns([2, 1])
+            final_dt_depth = None if dt_depth == 0 else dt_depth
+            final_rf_depth = None if rf_depth == 0 else rf_depth
             
-            with col_control:
-                st.write("**Phân tích chi tiết:**")
-                model_names = list(st.session_state.models.keys())
-                selected_model_name = st.selectbox("Chọn mô hình:", model_names, index=2)
-                
-                if selected_model_name:
-                    r2_val = results[selected_model_name]['R-squared (R²)']
-                    st.write(f"**Độ chính xác:** {r2_val*100:.2f}%")
+            submitted_train = st.form_submit_button("Lưu Cấu hình & Bắt đầu Huấn luyện (Bước 5)", type="primary")
             
-            with col_chart:
-                if st.session_state.models:
-                    model = st.session_state.models[selected_model_name]
-                    fig = pipeline.plot_actual_vs_predicted(
-                        model, 
-                        st.session_state.X_test, 
-                        st.session_state.y_test, 
-                        selected_model_name
-                    )
-                    fig.set_size_inches(5, 5) 
-                    st.pyplot(fig, use_container_width=False)
-
-        st.divider()
-                    
-        if st.session_state.step == 8:
-            st.button("Tiếp tục: Dự đoán Tùy chỉnh (Bước 6)", on_click=go_to_step_9_predict, type="primary")
+            if submitted_train:
+                st.session_state.train_params = {
+                    'dt_max_depth': final_dt_depth,
+                    'rf_n_estimators': rf_trees,
+                    'rf_max_depth': final_rf_depth
+                }
+                st.session_state.step = 8
+                st.rerun()
 
 if st.session_state.step >= 9:
     with st.expander("Bước 6: Dự đoán Tùy chỉnh", expanded=True):

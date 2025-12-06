@@ -84,11 +84,11 @@ def main():
 
     print("\n" + "="*50)
     print("KẾT QUẢ ĐÁNH GIÁ CHI TIẾT")
-    print(f"{'Mô hình':<20} | {'RMSE':<15} | {'R²':<10}")
-    print("-" * 50)
+    print(f"{'Mô hình':<20} | {'RMSE':<15}  | {'MAE':<15} | {'R²':<10}")
+    print("-" * 75)
     
     for model_name, metrics in results.items():
-        print(f"{model_name:<20} | ${metrics['RMSE']:,.2f}".ljust(38) + f" | {metrics['R-squared (R²)']:.4f}")
+        print(f"{model_name:<20} | ${metrics['RMSE']:,.2f}".ljust(39) + f" | ${metrics['MAE']:,.2f}".ljust(17) + f"  | {metrics['R-squared (R²)']:.4f}")
 
     print(f"\n[6/6] Đang vẽ biểu đồ phân tích vào '{OUTPUT_IMAGE_DIR}'...")
     if not os.path.exists(OUTPUT_IMAGE_DIR):

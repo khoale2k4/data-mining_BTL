@@ -127,18 +127,18 @@ Decision Tree được chọn vì những lý do sau:
 
 \subsubsection{Kết quả (Tập kiểm tra)}
 \begin{itemize}
-    \item R-squared (R²): \textbf{0.9617}
-    \item MAE (Lỗi tuyệt đối trung bình): \textbf{\$1,766.13}
-    \item RMSE (Lỗi toàn phương trung bình): \textbf{\$5,568.92}
+    \item R-squared (R²): \textbf{0.9591}
+    \item MAE (Lỗi tuyệt đối trung bình): \textbf{\$1,769.07}
+    \item RMSE (Lỗi toàn phương trung bình): \textbf{\$4,618.92}
 \end{itemize}
 
 \subsubsection{Phân tích}
 \begin{itemize}
-    \item \textbf{Hiệu suất vượt trội:} R² đạt 96,17\%, mô hình đã học được phần lớn quy luật ẩn trong dữ liệu.
+    \item \textbf{Hiệu suất vượt trội:} R² đạt 95,91\%, mô hình đã học được phần lớn quy luật ẩn trong dữ liệu.
     \item \textbf{Sai số giảm mạnh:} 
     \begin{itemize}
-        \item MAE giảm từ \$14,561 xuống \$1,766 (giảm 88\%)
-        \item RMSE giảm từ \$21,752. xuống \$4,466 (giảm 79\%)
+        \item MAE giảm từ \$14,561 xuống \$1,769 (giảm 88\%)
+        \item RMSE giảm từ \$21,752. xuống \$4,618 (giảm 79\%)
     \end{itemize}
     \item \textbf{Kết luận:} Decision Tree rất phù hợp với bài toán dự đoán doanh số, xác nhận rằng mối quan hệ giữa các đặc trưng là phi tuyến tính.
 \end{itemize}
@@ -172,14 +172,14 @@ Random Forest là giải pháp trực tiếp cho vấn đề này:
 
 \subsubsection{Kết quả (Tập kiểm tra)}
 \begin{itemize}
-    \item R-squared (R²): \textbf{0.9778}
-    \item MAE (Lỗi tuyệt đối trung bình): \textbf{\$1,330.80}
-    \item RMSE (Lỗi toàn phương trung bình): \textbf{\$3,404.74}
+    \item R-squared (R²): \textbf{0.9769}
+    \item MAE (Lỗi tuyệt đối trung bình): \textbf{\$1,769.07}
+    \item RMSE (Lỗi toàn phương trung bình): \textbf{\$3,469.72}
 \end{itemize}
 
 \subsubsection{Phân tích}
 \begin{itemize}
-    \item \textbf{So sánh với Decision Tree}: R² đã tăng từ 0.9617 lên 0.9778. Quan trọng hơn, chỉ số lỗi MAE/RMSE đã giảm từ $1,766 / $4,466 xuống còn $1,330 / $3,404.
+    \item \textbf{So sánh với Decision Tree}: R² đã tăng từ 0.9591 lên 0.9769. Quan trọng hơn, chỉ số lỗi MAE/RMSE đã giảm từ $1,769 / $4,618 xuống còn $1,341 / $3,469.
 
     \item \textbf{Ý nghĩa}: Điều này cho thấy Random Forest không chỉ giữ được khả năng nắm bắt các quy luật phi tuyến tính phức tạp của Decision Tree, mà còn cải thiện nó bằng cách giảm nhiễu và tạo ra các dự đoán chính xác hơn.
     
@@ -197,8 +197,8 @@ Random Forest là giải pháp trực tiếp cho vấn đề này:
 \begin{tabularx}{\textwidth}{|l|X|X|X|}
 \hline
 \textbf{Chỉ số (Metric)} & \textbf{Linear Regression (Cơ sở)} & \textbf{Decision Tree Regression (Bị Overfitting)} & \textbf{Random Forest Regression (Mô hình tối ưu)} \\ \hline
-R-squared (R²) & 0.0926 & 0.9617 & 0.9778 \\ \hline
-MAE & \$14{,}561.79 & \$1{,}766.13 & \$1{,}330.80 \\ \hline
+R-squared (R²) & 0.0926 & 0.9591 & 0.9769 \\ \hline
+MAE & \$14{,}561.79 & \$1{,}769.07 & \$1{,}341.43 \\ \hline
 \end{tabularx}
 \end{table}
 
