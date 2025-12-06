@@ -6,15 +6,13 @@ import io
 import pipeline 
 from pipeline import NUMERIC_FEATURES 
 
-# Khởi tạo session state
 if 'step' not in st.session_state:
     st.session_state.step = 0
     st.session_state.df_raw = None
-    st.session_state.df_processed = None # Dữ liệu trước khi scale
+    st.session_state.df_processed = None
     st.session_state.scaler = None
     st.session_state.results = None
     st.session_state.models = None
-    # Biến lưu trữ dữ liệu đã chia và scale
     st.session_state.X_train = None
     st.session_state.X_test = None
     st.session_state.y_train = None
@@ -36,30 +34,25 @@ def run_step_1_3():
     st.session_state.step = 5
 
 def run_step_1_4():
-    # CHỈ CHUẨN BỊ SCALER, CHƯA SCALE
     df_proc, scaler = pipeline.step_1_4_prepare_scaler(st.session_state.df_step_1_3)
     st.session_state.df_processed = df_proc
     st.session_state.scaler = scaler
     st.session_state.step = 6
 
 def run_step_3_split_and_scale():
-    # TÁCH LOGIC SPLIT & SCALE TẠI ĐÂY ĐỂ TRÁNH DATA LEAKAGE
     df = st.session_state.df_processed
     y = df['Weekly_Sales']
     X = df.drop('Weekly_Sales', axis=1)
     
-    # 1. Chia dữ liệu
     X_train_raw, X_test_raw, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     
-    # 2. Áp dụng chuẩn hóa (Fit Train -> Transform All)
     X_train_scaled, X_test_scaled, fitted_scaler = pipeline.apply_scaling(X_train_raw, X_test_raw, st.session_state.scaler)
     
-    # 3. Lưu vào state
     st.session_state.X_train = X_train_scaled
     st.session_state.X_test = X_test_scaled
     st.session_state.y_train = y_train
     st.session_state.y_test = y_test
-    st.session_state.scaler = fitted_scaler # Cập nhật scaler đã fit
+    st.session_state.scaler = fitted_scaler
     st.session_state.X_columns = X.columns.tolist()
     
     st.session_state.split_info = {
@@ -76,9 +69,6 @@ def reset_app(): st.session_state.clear(); st.rerun()
 st.set_page_config(layout="wide")
 st.title("Pipeline Dự đoán Doanh số")
 
-# --- UI LOGIC ---
-
-# BƯỚC 1: TẢI DỮ LIỆU
 if st.session_state.step == 0:
     st.header("Bước 1: Tải lên Dữ liệu")
     uploaded_file = st.file_uploader("Chọn file CSV", type="csv")
@@ -103,7 +93,6 @@ if st.session_state.step >= 1:
         if st.session_state.step == 1:
              st.button("Tiếp tục (Bước 2: EDA)", on_click=go_to_step_2_eda, type="primary")
 
-# BƯỚC 2: EDA
 if st.session_state.step >= 2:
     with st.expander("Bước 2: Khám phá Dữ liệu (EDA)", expanded=(st.session_state.step==2)):
         st.write("Hiển thị các biểu đồ cơ bản từ dữ liệu thô.")
@@ -116,11 +105,9 @@ if st.session_state.step >= 2:
         if st.session_state.step == 2:
             st.button("Bắt đầu Tiền xử lý (Bước 3)", on_click=run_step_1_1, type="primary")
 
-# CÁC BƯỚC XỬ LÝ (3.1, 3.2, 3.3)
 if st.session_state.step >= 3:
     with st.expander("Bước 3.1: Xử lý Missing Values", expanded=(st.session_state.step==3)):
         st.write("**Hành động:** Thay thế tất cả các giá trị `NaN` trong các cột `MarkDown` bằng số `0`.")
-        # --- BỔ SUNG CODE HIỂN THỊ ---
         st.code("df[markdown_cols] = df[markdown_cols].fillna(0)", language="python")
         
         st.write("**Kết quả:**")
@@ -130,7 +117,6 @@ if st.session_state.step >= 3:
 if st.session_state.step >= 4:
     with st.expander("Bước 3.2: Xử lý Nhiễu (Âm)", expanded=(st.session_state.step==4)):
         st.write("**Hành động:** Chuyển đổi tất cả các giá trị `Weekly_Sales` âm thành `0`.")
-        # --- BỔ SUNG CODE HIỂN THỊ ---
         st.code("df.loc[df['Weekly_Sales'] < 0, 'Weekly_Sales'] = 0", language="python")
         
         st.write("**Kết quả:**")
@@ -140,7 +126,6 @@ if st.session_state.step >= 4:
 if st.session_state.step >= 5:
     with st.expander("Bước 3.3: Feature Engineering", expanded=(st.session_state.step==5)):
         st.write("**Hành động:** Tạo đặc trưng ngày tháng và mã hóa biến Type.")
-        # --- BỔ SUNG CODE HIỂN THỊ ---
         st.code("""
 # Chuyển 'Date' thành Year, Month, Week, Day
 # Chuyển 'IsHoliday' (True/False) thành 1/0
@@ -151,7 +136,6 @@ if st.session_state.step >= 5:
         st.dataframe(st.session_state.df_step_1_3.head())
         if st.session_state.step == 5: st.button("Tiếp tục (Bước 3.4)", on_click=run_step_1_4)
 
-# BƯỚC 3.4 & 4: CHUẨN BỊ VÀ CHIA TÁCH
 if st.session_state.step >= 6:
     with st.expander("Bước 3.4: Chuẩn bị Scaler", expanded=(st.session_state.step==6)):
         st.write("**Hành động:** Khởi tạo `StandardScaler` nhưng **chưa áp dụng ngay**.")
@@ -209,7 +193,6 @@ if st.session_state.step >= 7:
                 go_to_step_8_train()
                 st.rerun()
 
-# BƯỚC 5: HUẤN LUYỆN
 if st.session_state.step >= 8:
     if st.session_state.results is None:
         params = st.session_state.get('train_params', {'rf_n_estimators': 50})
@@ -295,7 +278,6 @@ if st.session_state.step >= 8:
         if st.session_state.step == 8:
             st.button("Tiếp tục: Dự đoán Tùy chỉnh (Bước 6)", on_click=go_to_step_9_predict, type="primary")
 
-# BƯỚC 6: DỰ ĐOÁN
 if st.session_state.step >= 9:
     with st.expander("Bước 6: Dự đoán Tùy chỉnh", expanded=True):
         st.write("Nhập thông tin để dự đoán doanh số:")

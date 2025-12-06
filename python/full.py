@@ -76,7 +76,7 @@ def main():
         print("   -> Huấn luyện mới từ đầu...")
         results, models = pipeline.run_training_pipeline(X_train, X_test, y_train, y_test)
         
-        print("\n   -> Đang lưu TẤT CẢ model vào ổ cứng...")
+        print("\n   -> Đang lưu TẤT CẢ model...")
         for model_name, model in models.items():
             file_name = MODEL_FILES.get(model_name, model_name.replace(" ", "_").lower())
             pipeline.save_artifacts(model, fitted_scaler, model_name=file_name)
