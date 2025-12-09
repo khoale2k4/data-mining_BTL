@@ -259,18 +259,18 @@ if st.session_state.step >= 8:
             st.write("##### 1. Chỉ số Đánh giá (Metrics)")
             c1, c2, c3 = st.columns(3)
             
-            res_lr = results.get('Linear Regression', {'RMSE': 0, 'R-squared (R²)': 0})
-            res_dt = results.get('Decision Tree', {'RMSE': 0, 'R-squared (R²)': 0})
-            res_rf = results.get('Random Forest', {'RMSE': 0, 'R-squared (R²)': 0})
+            res_lr = results.get('Linear Regression', {'MAE': 0, 'R-squared (R²)': 0})
+            res_dt = results.get('Decision Tree', {'MAE': 0, 'R-squared (R²)': 0})
+            res_rf = results.get('Random Forest', {'MAE': 0, 'R-squared (R²)': 0})
 
             with c1:
-                st.metric("Linear Regression", f"${res_lr['RMSE']:,.0f}", f"R² = {res_lr['R-squared (R²)']:.4f}")
+                st.metric("Linear Regression", f"${res_lr['MAE']:,.0f}", f"R² = {res_lr['R-squared (R²)']:.4f}")
                 
             with c2:
-                st.metric("Decision Tree", f"${res_dt['RMSE']:,.0f}", f"R² = {res_dt['R-squared (R²)']:.4f}")
+                st.metric("Decision Tree", f"${res_dt['MAE']:,.0f}", f"R² = {res_dt['R-squared (R²)']:.4f}")
                 
             with c3:
-                st.metric("Random Forest", f"${res_rf['RMSE']:,.0f}", f"R² = {res_rf['R-squared (R²)']:.4f}")
+                st.metric("Random Forest", f"${res_rf['MAE']:,.0f}", f"R² = {res_rf['R-squared (R²)']:.4f}")
                 
             st.divider()
             t1, t2 = st.tabs(["So sánh Hiệu suất", "Thực tế vs Dự đoán"])
@@ -278,10 +278,10 @@ if st.session_state.step >= 8:
             with t1:
                 c_chart1, c_chart2 = st.columns(2)
                 with c_chart1:
-                    st.write("**So sánh RMSE (Thấp hơn là tốt hơn):**")
+                    st.write("**So sánh MAE (Thấp hơn là tốt hơn):**")
                     df_rmse = pd.DataFrame({
                         'Model': list(results.keys()), 
-                        'RMSE': [v['RMSE'] for v in results.values()]
+                        'MAE': [v['MAE'] for v in results.values()]
                     })
                     st.bar_chart(df_rmse.set_index('Model'))
             
