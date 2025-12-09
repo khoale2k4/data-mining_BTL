@@ -45,7 +45,11 @@ def main():
     
     feature_names = X.columns.tolist()
     
-    X_train_raw, X_test_raw, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    split_ratio = 0.8
+    split_index = int(len(df_processed) * split_ratio)
+
+    X_train_raw, X_test_raw = X.iloc[:split_index], X.iloc[split_index:]
+    y_train, y_test = y.iloc[:split_index], y.iloc[split_index:]
 
     print("   -> Đang chuẩn hóa dữ liệu (Fit on Train, Transform All)...")
     X_train, X_test, fitted_scaler = pipeline.apply_scaling(X_train_raw, X_test_raw, scaler_obj)
